@@ -1,0 +1,361 @@
+
+Source Tree:
+============
+source$ tree
+.
+├── Makefile
+├── README
+├── bin
+│   ├── README
+│   └── fpds
+├── obj
+│   ├── FPDS.o
+│   ├── README
+│   └── TestFPDS.o
+├── src
+│   ├── FPDS.C
+│   ├── FPDS.H
+│   └── TestFPDS.C
+└── taskset.txt
+
+3 directories, 11 files
+source$
+
+
+Abbrevations:
+=============
+FNR    : Final Non-pre-emptive region.
+FNR-PA : Final Non-pre-emptive region & Priority Assignment.
+
+
+Solution Approach:
+==================
+-> TestFPDS.C has the main function to run tests against FPDS Scheduling Algorithm
+-> FPDS.C has the implementation of FPDS scheduling algorithms (FNR and FNR-PA)
+-> taskset.txt will have the tasks in some arbitrary priority order.
+-> We start the algorithm my consider the given order of tasks as the initial priority order and
+   greedily compute the final priority optimal order.
+
+Assumption: First task (Task-1) has highest priority and last task has least priority (Task-N).
+
+Step-1:  For each level = k (from N to 1)
+Step-2:  For each Task 'i' higher priority than 'k'
+Step-3:  Compute the level-k active period assuming 'i' at the level-k
+Step-4:  While computing the active period for every task 'i', we assume all the unassigned tasks,
+         which are not yet part of the optimal priority order, all higher priority than Task 'i' and
+         recursively compute the level-i active period. There might be cases where the recursive
+         computation do not converge. We handle it with proper fail-safe mechanism by thresholding
+         the active period with HyperPeriod.
+Step-5:  For each Job g = {0,1,2,..} in the active period
+Step-6:  Compute the set of local maxima points of the Minimum execution time pieces linear function
+         The list will have the exact times where the higher priority tasks will be released in the
+         current execution period, before deadline.
+Step-7:  Get the Maximum value of all the execution times at those local maxima, which are non-negative
+         and is less than deadline.
+Step-8:  Compute the non-pre-emptive region length for this job 'g'
+Step-9:  Compute the max of all the non-pre-emptive regions for all the jobs g = {0,1,2,...}
+Step-10: Save this as the FNR length of the Task 'i' at level-k
+Step-11: After computing FNR lengths for all the tasks equal to or higher priority than 'k' pick the
+         task index with least value of FNR length.
+Step-12: Perform the transformation step with the chosen task.
+Step-13: Repeat the procedure till we reach k = 1 (first task).
+
+
+
+Compilation Run:
+================
+source$ mcm
+Cleaning all the object files and binaries.
+rm -f core ./obj/FPDS.o ./obj/TestFPDS.o ./bin/fpds
+g++ -Wall -std=c++1z -c src/FPDS.C -o obj/FPDS.o
+Compiled src/FPDS.C successfully.
+g++ -Wall -std=c++1z -c src/TestFPDS.C -o obj/TestFPDS.o
+Compiled src/TestFPDS.C successfully.
+g++ ./obj/FPDS.o ./obj/TestFPDS.o -o bin/fpds
+Linking Complete.
+To start the "FPDS Computing" run --> ./bin/fpds
+source$
+
+
+
+Execution Runs:
+===============
+
+source$ ./bin/fpds
+[ERROR] Input File Missing.
+[USAGE] ./bin/fpds <taskset_input_file>
+source$
+
+
+------
+Run-1:
+------
+Input Data (taskset.txt):
+1,250,100,175
+2,400,100,300
+3,350,100,325
+
+source$ ./bin/fpds taskset.txt
+
+Initial Order of Taskset : P(1) > P(2) > P(3)
+
+=============================================
+[FPDS] Running FNR-PA on level-2
+=============================================
+[FPDS] Computing FNR Length for Task-2
+[FPDS] Priority level-2 active period = 700
+[FPDS] Local maxima occur at -> {249,324,}
+[FPDS] Max Execution time = 49
+[FPDS] For Job g = 0 max FNR length = 51
+[FPDS] Local maxima occur at -> {499,399,674,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 1 max FNR length = 101
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-2 active period = 700
+[FPDS] Local maxima occur at -> {249,299,}
+[FPDS] Max Execution time = 49
+[FPDS] For Job g = 0 max FNR length = 51
+[FPDS] Local maxima occur at -> {499,699,699,}
+[FPDS] Max Execution time = 99
+[FPDS] For Job g = 1 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-2 active period = 700
+[FPDS] Local maxima occur at -> {174,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 0 max FNR length = 101
+[FPDS] Local maxima occur at -> {399,349,424,}
+[FPDS] Max Execution time = 49
+[FPDS] For Job g = 1 max FNR length = 51
+[FPDS] Local maxima occur at -> {674,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 2 max FNR length = 101
+
+=============================================
+[FPDS] Running FNR-PA on level-1
+=============================================
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-1 active period = 200
+[FPDS] Local maxima occur at -> {324,}
+[FPDS] Max Execution time = 124
+[FPDS] For Job g = 0 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-1 active period = 200
+[FPDS] Local maxima occur at -> {174,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 0 max FNR length = 101
+
+=============================================
+[FPDS] Running FNR-PA on level-0
+=============================================
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-0 active period = 100
+[FPDS] Local maxima occur at -> {174,}
+[FPDS] Max Execution time = 174
+[FPDS] For Job g = 0 max FNR length = 1
+
+[FPDS] Final non-pre-emptive region at Level-1 = 1
+[FPDS] Final non-pre-emptive region at Level-2 = 1
+[FPDS] Final non-pre-emptive region at Level-3 = 51
+
+[FPDS] The given taskset is SCHEDULABLE using FPDS
+
+Final Schedulable Order of Taskset : P(1) > P(3) > P(2)
+source$
+
+
+
+---------------------------------------------------
+Run-2 (Shuffling the tasks initial priority order):
+----------------------------------------------------
+Input Data (taskset.txt):
+2,400,100,300
+3,350,100,325
+1,250,100,175
+
+source$ ./bin/fpds taskset.txt
+
+Initial Order of Taskset : P(2) > P(3) > P(1)
+
+=============================================
+[FPDS] Running FNR-PA on level-2
+=============================================
+[FPDS] Computing FNR Length for Task-2
+[FPDS] Priority level-2 active period = 700
+[FPDS] Local maxima occur at -> {174,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 0 max FNR length = 101
+[FPDS] Local maxima occur at -> {399,349,424,}
+[FPDS] Max Execution time = 49
+[FPDS] For Job g = 1 max FNR length = 51
+[FPDS] Local maxima occur at -> {674,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 2 max FNR length = 101
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-2 active period = 700
+[FPDS] Local maxima occur at -> {249,324,}
+[FPDS] Max Execution time = 49
+[FPDS] For Job g = 0 max FNR length = 51
+[FPDS] Local maxima occur at -> {399,499,674,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 1 max FNR length = 101
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-2 active period = 700
+[FPDS] Local maxima occur at -> {249,299,}
+[FPDS] Max Execution time = 49
+[FPDS] For Job g = 0 max FNR length = 51
+[FPDS] Local maxima occur at -> {699,499,699,}
+[FPDS] Max Execution time = 99
+[FPDS] For Job g = 1 max FNR length = 1
+
+=============================================
+[FPDS] Running FNR-PA on level-1
+=============================================
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-1 active period = 200
+[FPDS] Local maxima occur at -> {174,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 0 max FNR length = 101
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-1 active period = 200
+[FPDS] Local maxima occur at -> {324,}
+[FPDS] Max Execution time = 124
+[FPDS] For Job g = 0 max FNR length = 1
+
+=============================================
+[FPDS] Running FNR-PA on level-0
+=============================================
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-0 active period = 100
+[FPDS] Local maxima occur at -> {174,}
+[FPDS] Max Execution time = 174
+[FPDS] For Job g = 0 max FNR length = 1
+
+[FPDS] Final non-pre-emptive region at Level-1 = 1
+[FPDS] Final non-pre-emptive region at Level-2 = 1
+[FPDS] Final non-pre-emptive region at Level-3 = 51
+
+[FPDS] The given taskset is SCHEDULABLE using FPDS
+
+Final Schedulable Order of Taskset : P(1) > P(3) > P(2)
+source$
+
+
+
+-----------------------------------------
+Run-3 (A different Taskset with 4 tasks):
+-----------------------------------------
+Input Data (taskset.txt):
+1,500,80,500
+2,400,80,400
+3,300,80,300
+4,350,80,350
+
+source$ ./bin/fpds taskset.txt
+
+Initial Order of Taskset : P(1) > P(2) > P(3) > P(4)
+
+=============================================
+[FPDS] Running FNR-PA on level-3
+=============================================
+[FPDS] Computing FNR Length for Task-3
+[FPDS] Priority level-3 active period = 800
+[FPDS] Local maxima occur at -> {299,349,}
+[FPDS] Max Execution time = 59
+[FPDS] For Job g = 0 max FNR length = 21
+[FPDS] Local maxima occur at -> {499,399,599,699,}
+[FPDS] Max Execution time = 39
+[FPDS] For Job g = 1 max FNR length = 41
+[FPDS] Local maxima occur at -> {799,1049,}
+[FPDS] Max Execution time = 89
+[FPDS] For Job g = 2 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-2
+[FPDS] Priority level-3 active period = 800
+[FPDS] Local maxima occur at -> {299,}
+[FPDS] Max Execution time = -1
+[FPDS] For Job g = 0 max FNR length = 81
+[FPDS] Local maxima occur at -> {499,399,349,599,}
+[FPDS] Max Execution time = 29
+[FPDS] For Job g = 1 max FNR length = 51
+[FPDS] Local maxima occur at -> {799,699,899,}
+[FPDS] Max Execution time = 99
+[FPDS] For Job g = 2 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-3 active period = 800
+[FPDS] Local maxima occur at -> {299,349,399,}
+[FPDS] Max Execution time = 59
+[FPDS] For Job g = 0 max FNR length = 21
+[FPDS] Local maxima occur at -> {499,599,699,799,}
+[FPDS] Max Execution time = 79
+[FPDS] For Job g = 1 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-3 active period = 800
+[FPDS] Local maxima occur at -> {399,299,349,499,}
+[FPDS] Max Execution time = 59
+[FPDS] For Job g = 0 max FNR length = 21
+[FPDS] Local maxima occur at -> {799,599,699,999,}
+[FPDS] Max Execution time = 119
+[FPDS] For Job g = 1 max FNR length = 1
+
+=============================================
+[FPDS] Running FNR-PA on level-2
+=============================================
+[FPDS] Computing FNR Length for Task-2
+[FPDS] Priority level-2 active period = 240
+[FPDS] Local maxima occur at -> {349,}
+[FPDS] Max Execution time = 109
+[FPDS] For Job g = 0 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-2 active period = 240
+[FPDS] Local maxima occur at -> {299,}
+[FPDS] Max Execution time = 139
+[FPDS] For Job g = 0 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-2 active period = 240
+[FPDS] Local maxima occur at -> {499,}
+[FPDS] Max Execution time = 179
+[FPDS] For Job g = 0 max FNR length = 1
+
+=============================================
+[FPDS] Running FNR-PA on level-1
+=============================================
+[FPDS] Computing FNR Length for Task-1
+[FPDS] Priority level-1 active period = 160
+[FPDS] Local maxima occur at -> {299,}
+[FPDS] Max Execution time = 219
+[FPDS] For Job g = 0 max FNR length = 1
+---------------------------------------------
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-1 active period = 160
+[FPDS] Local maxima occur at -> {499,}
+[FPDS] Max Execution time = 339
+[FPDS] For Job g = 0 max FNR length = 1
+
+=============================================
+[FPDS] Running FNR-PA on level-0
+=============================================
+[FPDS] Computing FNR Length for Task-0
+[FPDS] Priority level-0 active period = 80
+[FPDS] Local maxima occur at -> {499,}
+[FPDS] Max Execution time = 499
+[FPDS] For Job g = 0 max FNR length = 1
+
+[FPDS] Final non-pre-emptive region at Level-1 = 1
+[FPDS] Final non-pre-emptive region at Level-2 = 1
+[FPDS] Final non-pre-emptive region at Level-3 = 1
+[FPDS] Final non-pre-emptive region at Level-4 = 21
+
+[FPDS] The given taskset is SCHEDULABLE using FPDS
+
+Final Schedulable Order of Taskset : P(1) > P(3) > P(4) > P(2)
+source$
