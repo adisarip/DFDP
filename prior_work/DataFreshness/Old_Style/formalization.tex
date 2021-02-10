@@ -1,0 +1,85 @@
+\section{Formalization}
+
+\subsection{Definitions}
+
+Our model assumes a periodic task set on a unicore system. For periodic task sets, each task $A$ is characterized by the following:
+
+\begin{center}
+	\begin{tabular}{|r|l|}
+		\hline
+		Period & $P_A$ \\
+		Relative Deadline & $D_A$ \\
+		Worst-Case Execution Time & $E^u_A$ \\
+		Best-Case Execution Time & $E^l_A$ \\
+		\hline
+	\end{tabular}\\
+\end{center}
+
+
+A job is an instance of a task, i.e. one of the actual executions of a task. Each task can, and often does, produce multiple jobs. In our periodic model, a job is released at most every $P_A$ time. Each $i^{th}$ job of task $A$ has the following attributes:
+
+\begin{center}
+	\begin{tabular}{|r|l|}
+		\hline
+		Release Time & $r^i_A$ \\
+		Finish Time & $f^i_A$ \\
+		\hline
+	\end{tabular}\\
+\end{center}
+
+Note that $f^i_A - r^i_A$ will always be bounded below by the best-case execution deadline (when the task is executed immediately and ran to completed) but not bounded by the worst-case execution time if the system allows preemption or if the job has to wait before being scheduled onto the processor. However, assuming the system is schedulable, this difference is bounded by the task period. If this is not the case then the job has experienced a deadline miss.
+
+Since we wish to uphold a data freshness guarantee, we define $d_{A \to B}$ to be the desired upper bound on data freshness for data produced by jobs of task $A$ and consumed by jobs of task $B$. Lastly, we define a value that will help us formulate the requirements of our system. Let $C_A(r^i_B)$ denote the most recently completed job of task $A$ before the release of job $i$ of task $B$.
+
+\subsection{Assumptions}
+
+Since we do not know the nature of the particular tasks, particularly when they produce and consume data, we choose to abstract the specifics of data production and consumption. We assume tasks consume data at the very beginning of their execution time. This means that data they consume must be produced before they start execution. Since this could happen immediately at release time, without knowing the scheduler and thus when the task may execute, we assume jobs read input values at the time of their release.
+
+On the other hand, we assume data is produced at the very end of a task execution. Hence, if a task produces some data, it does so at finish time. Therefore, we must wait until the completion of a job before we can consider its data available, at which time it overwrites the data from the last completed job of the same task. Also note that in our notion, we will consider the data to be generated after the initial task outputs it. While this does not explicitly consider the execution time of this first task, collection tasks are often small. This definition keeps our formulation consistent in that data is only considered updated at the end of a task. If the initial task has non-trivial execution time, or the designer would like to consider it, its WCET can be subtracted from the desired freshness bound.
+
+We also assume that data transfers are instantaneous. While this is not the case for real system, data transfer times are often quick in comparison to task execution times. We note that slower methods of data storage or transfer may invalidate this formulation. However, one method to account for data storage or access time is to inflate the task WCET to include these. This works because of our previous two assumptions on when data is consumed and produced. From here on, we will assume data transfer times are either negligible or accounted for in task execution times.
+
+While the above two assumptions are "extremes" it should not be construed to imply worst case. We use these assumptions to generalize the problem to any task set. Due to these assumptions, our notion of freshness will be relative to the completion of data generating tasks and the release of consuming tasks. We feel this is a reasonable definition of freshness under given our assumptions and abstraction, and we will formally define this in the next section.
+
+Since the freshness of the final, fully-transformed data is often of interest, we assume that the period of the final consuming task is fixed, i.e., if a designer wants the transformed data to be at most 50 milliseconds old, it is intuitive that they would select this as the period of the final task. We will assume the designer selects an appropriate period for this task and would like to compute the input tasks' periods to meet their freshness requirement.
+
+For simplicity, we will only be considering unicore systems.
+
+\subsection{Requirements}
+
+Using the notation and assumptions above, we can define the freshness of data produced by task $A$ and consumed by job $i$ of task $B$ with the quantity
+\begin{center}
+	$r^i_B - f_A^{C_A(r^i_B)}$
+\end{center}
+
+Since we demand that our data freshness from $A$ to $B$ be bounded by $d_{a \to b}$, and the above represents the data freshness of job $i$ of task $B$, we need
+\begin{center}
+	$r^i_B - f_A^{C_A(r^i_B)} \leq d_{A \to B}$
+\end{center}
+in order to ensure job $i$ of task $B$ consumes fresh data.
+
+Finally, since data freshness must hold for all jobs of task $B$, our final freshness requirement is as follows
+\begin{center}
+	$\forall i, r^i_B - f_A^{C_A(r^i_B)} \leq d_{A \to B}$
+\end{center}
+
+\subsection{Problem Statement For Two Tasks}
+
+Our formal problem statement is as follows. Let $E^*_A$ denote that we have both worst-case and best-case execution times for task A, and let $U(T)$ denote the system utilization.
+
+\begin{equation*}
+	\begin{aligned}
+		& \text{Given}
+		& & E^*_A, E^*_B, P_B, \text{ and } d_{A \to B} \\
+		& \text{Find}
+		& & P_A \\
+		& \text{That Minimizes}
+		& & U(T) \\
+		& \text{Subject To}
+		& & \forall i, r^i_B - f_A^{C_A(r^i_B)} \leq d_{A \to B}
+	\end{aligned}
+\end{equation*}
+
+Note that we do not explicitly consider schedulability in the formulation for both generality among algorithms and for simplicity. Due to this, our solution will not guarantee schedulability, which must instead be confirmed using algorithm-specific methods afterwards. On the contrary, our solution actually relies on the schedulability of the system for the end result as described later, and is thereby invalidated if the system is ultimately unscheduable.
+
+It is clear this minimization problem has some solution: we can lower utilization by increasing our only free variable $P_A$, but for any constant freshness guarantee at some point increasing $P_A$ will cause our freshness bound to not hold. For example, if we set $P_A = 2 \cdot P_B$ it is clear freshness will not hold, while setting $P_A$ arbitrarily close to $0$ will cause the bound to hold (disregarding schedulability). At some point between these two, the system switches from upholding the freshness bound to not upholding it.

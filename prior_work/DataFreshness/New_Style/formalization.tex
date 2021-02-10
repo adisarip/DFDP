@@ -1,0 +1,74 @@
+\section{Formalization}
+
+\subsection{Task Definitions}
+
+Our model assumes a periodic task set on a unicore system. For periodic task sets, each task $A$ is characterized by a period $P_A$, a relative deadline $D_A$, and a worst-case execution time (WCET) $E^u_A$. We additionally include a best-case execution time (BCET) $E^l_A$.
+
+A job is an instance of a task, i.e. one of the actual executions of a task. Each task produces multiple jobs and in the periodic model, a job is released every $P_A$ time. Each $i^{th}$ job of task $A$ has a release time $r^i_A$ and a finish time $f^i_A$. Note that $f^i_A - r^i_A$ is lower bounded by BCET (when the task is executed immediately and runs to completion) but not upper bounded by the WCET if the job can be preempted. However, assuming the system is schedulable, the job is completed before the its deadline. If this is not the case then the job has experienced a deadline miss. In this work we will consider deadlines to be equal to periods for simplicity and clarity, but our model could be extended to account for other deadlines.
+
+Since we wish to uphold a data freshness guarantee, we define $d_{A \to B}$ to be the desired upper bound on data freshness for data produced by task $A$ and consumed by task $B$. Lastly, we define a value that will help us formulate the requirements of our system. Let $C_A(r^i_B)$ denote the most recently completed job of task $A$ before the release of job $i$ of task $B$. This will be useful since we assume the most recently produced output from a task is the freshest. This assumption holds because of our period = deadline assumption, but is also easily enforced if that assumption is removed.
+
+\subsection{Communication Definitions}
+
+We include communication, storage, or other latencies into our formulation. For our purposes, data latency denotes any delay in storing or transferring a value to another task. Examples include the delay to store a value in a database, inter-processor communication, and network delays. For our formulation, we require the following values to be provided: Minimum Data Delay $DL^{min}$ and Maximum Data Delay $DL^{max}$.
+
+Since our formulation will consider data to be available at task completion, we can abstract the communication delay into our task execution times as follows:
+
+\begin{center}
+		$E^{l,min}_A = E^l_A + DL^{min}$ \text{ and } $E^{u,max}_A = E^u_A + DL^{max}$
+\end{center}
+
+\subsection{Assumptions}
+
+Since we do not know the nature of the tasks, particularly when they produce and consume data, we choose to abstract the specifics of data production and consumption. We assume tasks consume data at the very beginning of their execution as this enacts the strictness (shortest) freshness deadline. Since execution could happen immediately at release time, without knowledge of the scheduler, we assume jobs read input values at the time of their release.
+
+On the other hand, we assume data is produced at finish time. Therefore, we must wait until the completion of a job before we can consider its data available, at which time it overwrites the data from the last completed job of the task. While we do not consider delay from the polling task, collection tasks are often small and we consider this trivial. If the initial task has non-trivial execution time its WCET can be subtracted from the desired freshness bound. While producing at the end of a task does not produce the worst staleness, it is easy to hold off production until the end of task and, similarly to the polling task mentioned in the last sentence, one can subtract the difference between the end of a job and the earlies it could produce data from the freshness constraint.
+
+Since the freshness of the final, fully-transformed data is often of interest, we assume that the period of the final consuming task is fixed, i.e., if a designer wants the transformed data to be at most 50 milliseconds old, it is intuitive that they would select this as the period of the final task. We will assume the designer selects an appropriate period for this task and would like to compute the input tasks' periods to meet their freshness requirement. In this work we present our approach considering unicore systems, but will show how the work seamlessly applies to multicore systems.
+
+\subsection{Requirements}
+
+Using the notation and assumptions above, for a producer ($A$) and consumer ($B$) pair we define the freshness requirement of data produced by task $A$ and consumed by job $i$ of task $B$ as follows:
+\begin{center}
+	$\forall i, r^i_B - f_A^{C_A(r^i_B)} \leq d_{A \to B}$
+\end{center}
+That is, at the release of any job $i$ of task $B$, the time since the completion of the last job by task $A$ is less than or equal to the freshness bound $d_{A \to B}$.
+
+
+\subsection{Problem Statement}
+
+The problem statement is as follows. Let $E^{*,*}_k$ denote that we have both worst-case and best-case execution times including communication and other latencies for task $k$, and let $U(T)$ denote the system utilization. We have $n$ tasks in the chain.
+
+\iffalse
+\begin{equation*}
+	\begin{aligned}
+		& \text{Given}
+		& & E^{*,*}_A, E^{*,*}_B, P_B, \text{ and } d_{A \to B} \\
+		& \text{Find}
+		& & P_A \\
+		& \text{That Minimizes}
+		& & U(T) = \sum_i \frac{E_i^{u,max}}{P_i}\\
+		& \text{Subject To}
+		& & \forall i, r^i_B - f_A^{C_A(r^i_B)} \leq d_{A \to B}
+	\end{aligned}
+\end{equation*}
+\fi
+
+\begin{equation*}
+	\begin{aligned}
+		& \text{Given}
+		& & \forall k, E^{*,*}_k; \text{ and } d_{1 \to n} \\
+		& \text{Find}
+		& & \forall k < n, P_k \\
+		& \text{That Minimizes}
+		& & U(T) = \sum_n \frac{E_n^{u,max}}{P_n}\\
+		& \text{Subject To}
+		& & \forall i, \sum_{j=2}^{n} (r^i_j - f_{j-1}^{C_j(r^i_{j-1})}) + \sum_{j=2}^{n-1} E_n^{u,max} \leq d_{1 \to n}
+	\end{aligned}
+\end{equation*}
+
+Expressed textually, we minimize utilization while keeping the sum of task WCETs between the original producer and the final consumer plus the sum of any time spent between the end of a job of task $A$ and the release of a job of the next task $B$, to be less than our freshness bound. This quantity is the total time the data spends in flight. We use WCETs since this case produces the most strict local deadlines, which we describe later, for each pair of tasks.
+
+We do not consider schedulability in the formulation as to maintain maximum generality. Therefore, our solution will not guarantee schedulability, which must be confirmed using algorithm-specific methods afterwards. However, our solution relies on an assumption of the schedulability of the final task set and is thereby invalidated if this is not the case.
+
+It is clear this minimization has a solution. Assume all periods are low enough to ensure the freshness bound (all close to $0$ for example, as it is clear all periods arbitrarily close to $0$ would cause the bound to hold). We can lower utilization by increasing any $P_k$, but at some point increasing $P_k$ will violate our freshness bound. For example, if $P_k = 2 \cdot d_{1 \to n}$ freshness will not hold, while setting $P_k$ arbitrarily closer to $0$ will cause the bound to hold (disregarding schedulability). At some point between these two the system switches between upholding and violating the freshness bound. This point is one solution.

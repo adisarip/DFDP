@@ -1,0 +1,9 @@
+General Formulation:
+Percent RM Schedulable: 42.20
+Percent EDF Schedulable: 51.32
+
+RM Formulation:
+Percent RM Schedulable: 45.16
+Percent EDF Schedulable: 50.06
+
+5000 trials

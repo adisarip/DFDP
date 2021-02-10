@@ -1,0 +1,379 @@
+﻿============================================================================
+EMSOFT 2017 Reviews for Submission #52
+============================================================================
+
+Title: Data Freshness Over-Engineering: Formulation and Basic Results
+
+Authors: Dagaen Golomb, Deepak Gangadharan, Sanjian Chen, Oleg Sokolsky and Insup Lee
+============================================================================
+                            REVIEWER #1
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+               Relevance to EMSOFT (1-4): 3
+          Presentation/Readability (1-4): 3
+                       Originality (1-4): 3
+               Technical Soundness (1-4): 3
+Account of prior work and references (1-3): 2
+            Overall Recommendation (1-5): 4
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+The topic of the paper is uniprocessor scheduling of task chains that pass data
+from a source (producer) task to a sink (consumer) task and where there are
+data freshness constraints, i.e., the data may not be too old when it reaches
+the consumer task. The paper starts by analyzing this case for two task,
+continues to three tasks, and then finally extends the results to n tasks. In
+the final case the problem is formulated as an optimization problem. In the
+latter case the optimization problem obtained is nonlinear. The approach is
+evaluated using synthetic task sets for different scheduling policies (RM, EDF,
+etc). In the n-task case the optimization problem is solved using Matlab.
+
+The problem is interesting and the paper is interesting an relevant for Emsoft.
+However, it has two shortcomings:
+
+1) Very little is said about the n-case optimization problem. Is it convex? How
+well does the solution method scale? How long time did it take to solve it?
+
+Dagaen: Added that it appears convex and with justification. Better argument
+may come later. Noted that optimizations finished within 1s on average.
+May test scaling later although its already quite fast so I doubt scaling
+will be an issue.
+
+2) In many cases calculations are done that involves more than one data. In
+that case there are freshness constraints need to be combined. Please discuss
+this case further.
+
+Dagaen: Added a quick blurb about this. Room for improvment includes integrating
+this into the example with a fork and merge.
+
+============================================================================
+                            REVIEWER #2
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+               Relevance to EMSOFT (1-4): 3
+          Presentation/Readability (1-4): 3
+                       Originality (1-4): 3
+               Technical Soundness (1-4): 3
+Account of prior work and references (1-3): 2
+            Overall Recommendation (1-5): 2
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+I am wondering how data freshness relates to task dependencies (which have been
+considered extensively in real-time scheduling). Can we formulate data
+freshness in terms of task dependencies and then apply existing scheduling
+algorithms for periodic tasks with dependencies? Is data freshness a
+quantitative version of task dependencies?
+
+Secondary Reviewer:
+
+Paper summary:
+The authors in this paper investigate the problem of input data freshness
+in real-time applications. In many real-time systems the aging of input
+data consumed by a task has an important effect on quality of outputs
+especially in control systems. Some tasks in the system may produce data
+which are consumed by other tasks in the system. A chain of tasks with
+producer-consumer relation between consecutive pairs is considered as
+task model (one produce data for the next). It is assumed that the last
+task in chain can tolerate a specified amount of aging in its input which
+is predetermined. The goal is to find appropriate period for each task
+in the chain such that the aging bound for the last task is fulfilled.
+
+The solution proposed in this paper finds periods for a chain of two and
+three tasks which satisfies the freshness bound and minimizes total
+utilization.
+For the chain of size larger than three they apply the formulation for
+chains of size 2 and 3 to consecutive tasks. In this case instead of
+finding optimum periods, the problem is to find freshness bounds that
+satisfies those formulations for consecutive tasks.
+
+Discussion:
+- For task chains of size larger than three the problem is changed from finding
+periods presented in section 3.5 to finding data freshness between consecutive
+tasks.
+
+Dagaen: This ends up being the same for our formulation. Added soe language to
+clarify this.
+
+- The presented problem can be interesting when for a set of task chains
+a solution with schedulability guarantee is proposed. Finding periods for
+a simple task chain independent of other task chains running in the system
+and without a guarantee on schedulability of the whole tasks appears to be a
+rather limited contribution.
+
+Dagaen: Noted and explained how this can be used to solve for a system with
+many disconnected task chains.
+
+- It is not clear to me why in 3-task scenario the intermediate task does not
+have any influence on the data freshness of the third task. As depicted in
+Fig. 2, the elapsed time from finishing time of task A to the start time of
+task C should be included in the total data freshness delay.
+
+Dagaen: They do, as seen in the equation. Maybe he is just confused?
+
+- In the evaluation and experiments, the period assignment method proposed
+in this paper should be compared to prior related work.
+
+Dagaen: To do.
+
+Minor issues:
+- Equations do not have number.
+
+Dagaen: All equations either are optimization problems that can be referenced
+by section or Lemmas/Theorems with numbers so not sure why this was mentioned.
+
+- Some part of the text is not clearly written. For example, proof of theorem
+4.1; or the star sign on page 5 and 6.
+
+Dagaen: Fixed.
+
+- On page 7 the sentence “many of the task graphs include more than 2 or 3
+tasks” is vague and do not increase my confidence about the paper.
+
+Dagaen: Fixed.
+
+- There are some spelling mistakes: in the abstract “we perform of
+evaluations
+of ...”, on page 4 column 1 “using Lemma 4.2...”, on page 4 column 2
+” Substitute From Constraint:”, etc.
+
+Dagaen: Fixed.
+
+============================================================================
+                            REVIEWER #3
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+               Relevance to EMSOFT (1-4): 3
+          Presentation/Readability (1-4): 3
+                       Originality (1-4): 2
+               Technical Soundness (1-4): 3
+Account of prior work and references (1-3): 2
+            Overall Recommendation (1-5): 2
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+The authors describe a problem formulation for giving guarantees of data
+freshness, that is, to guarantee that some data set is not older than a certain
+time when passed through a number of real-time tasks.
+
+The problem is interesting and the paper is easy to read. However, it seems
+like the author have made a big thing about a fairly simple problem
+formulation. Moreover, there are several assumptions in the paper that make the
+actual solution less interesting.
+
+Firstly, the problem formulation is given as an optimization problem in section
+3.5. This is a general problem formulation that ought to be straight forward to
+encode as an integer linear problem (ILP) and then simply solved by a standard
+ILP solver. If this is the case, there is not so much to say about this.
+However, if this not the case, the authors need to clarify why this is not the
+case. Large portions of the paper are used to discuss how to solve this problem
+in constrained cases (2 tasks and 3 tasks setting).
+
+Dagaen: Yes, we simply throw it at a solver... like any other paper that proposes
+a [I]LP solution...
+
+Secondly, one of the main benefits, according to the authors, and also the
+limitations (as clearly stated in section 10) is that this approach abstracts
+away the scheduling algorithm. This makes the problem itself almost trivial,
+but gives of course a lot of freedom. Including the scheduling problem into the
+equation would make the problem formulation much more compelling. Now, section
+7 and 8 discuss the benefits with this approach, because it works both for
+presumptive schedulers, and in a multiprocessor setting. But, the only reason
+for this is that the paper does not consider schedulability in these two
+settings.
+
+Dagaen: Small changes to muliprocessor and preemption section but I find them
+adequate. Not sure what else can be done there. Another comment about including
+scheduler which we sort of did with RM formulation albeit not schedulability
+checks (yet).
+
+The authors also need to discuss alternatives. For instance, why would not a
+periodic task that reads from a sensor, and writes to a shared latest value
+buffer (using for instance Simpson’s four slots communication mechanism) be
+enough, if the period task is guaranteed to be schedulable? Or, why is not a
+synchronous program where each tick executes within specified tick time giving
+this guarantee as well? Freshness within such other paradigms seem to makes the
+problem trivial.
+
+Dagaen: I find all of these irrelevant since they are scheduling paradigms which
+we abstract away. Ticks still need to determine period, which we do. Communication
+delays or paradigms can be accounted for in data delay and by themselves do nothing
+on the front of data freshness.
+
+Minor comment:
+
+* Some sentences in the introduction include some typos. For instance, the
+sentence “our solution...” starts with a lower-case letter.
+
+Dagaen: Fixed.
+
+* Page 2 second paragraph of 3.1 says “This assumption holds because of our
+period = deadline assumption, but is also easily enforced if that assumption is
+removed.” If it is easy, why is not the paper showing this more general
+approach then? It is one thing to simplify the explanation for pedagogical
+reasons, but it does mean that it is a good idea to skip to explain (and prove
+the correctness of) the more general approach.
+
+Dagaen: Added for simplicity and clarity and explained change that could be used
+to account for deadline != period.
+
+* Page 2, second column says “We assume tasks consume data at the very
+beginning of their execution. Since this could happen immediately at release
+time, without knowledge of the scheduler, we assume jobs read input values at
+the time of their release.” This is a very strong assumption. In general,
+nothing says that a task actually consumes their inputs at release time. The
+question then is: how can the approach described in this paper be updated to
+handle consumption of input data at any time during a tasks execution? Why is
+this assumption made in the first place? The applicability for the approach can
+be significantly less relevant under this assumption.
+
+Dagaen: Explained reasoning of assumptions more.
+
+============================================================================
+                            REVIEWER #4
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+               Relevance to EMSOFT (1-4): 3
+          Presentation/Readability (1-4): 3
+                       Originality (1-4): 2
+               Technical Soundness (1-4): 3
+Account of prior work and references (1-3): 1
+            Overall Recommendation (1-5): 1
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+The authors propose an optimization approach for task chains with data
+freshness constraints. The optimization goal is to assign periods such that
+utilization is minimized.
+
+I find the paper very much disconnected from the large bunch of work on data
+freshness and end to end delay analysis. First of all, regarding data freshness
+there are several criteria according to which this notion is defined, depending
+e.g. on the assumed synchronization on the path from producer to consumer (see
+e.g. Feiertag et al. "A Compositional Framework for End-to-End Path Delay
+Calculation of Automotive Systems under Different Path Semantics", Workshop on
+Compositional Theory and Technology for Real-Time Embedded Systems, 2008). In
+this context, the freshness as defined in this paper is just one possible
+definition and the simplest one. Optimization of period and other parameters in
+the context of data freshness is also well known (see e.g. Xiong and
+Ramamritham "Deriving Deadlines and Periods for Real-Time Update
+Transactions",IEEE TRANSACTIONS ON COMPUTERS, VOL. 53, NO. 5, MAY 2004).
+
+Dagaen: To do: look at these and argue differences.
+
+I do not see any real significance in the two and three tasks case but only as
+an introduction to the general N tasks case. For this one, however, in Section
+6 we only have a problem formulation without any solution (just give it to a
+solver!).
+
+Dagaen: 2 and 3 are to build up idea. Maybe they can be shortened and connected
+better with optimization later but not sure how. Yes, we throw it at a solver
+like every other [I]LP solution paper...
+
+The discussion on the impact of preemption is weak! The same about
+multiprocessor.
+
+Dagaen: Small changes to those sections but little concrete issues and they
+appear strong to me.
+
+It is very unclear what the authors really want to demonstrate with the
+evaluation. To a large extent I miss the connection to the rest of the paper.
+
+Dagaen: ? Not very good at pointing out specific issues. Seems like this guy
+was having a bad day.
+
+============================================================================
+                            REVIEWER #5
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+               Relevance to EMSOFT (1-4): 3
+          Presentation/Readability (1-4): 2
+                       Originality (1-4): 2
+               Technical Soundness (1-4): 2
+Account of prior work and references (1-3): 2
+            Overall Recommendation (1-5): 2
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+This paper studied the problem of maintaining data freshness in a periodic
+independent task system. The freshness is defined by a time interval between
+the release of any job of a consumer task and the completion of the last job of
+a producer task. The author then constructs several constraints to choose the
+period of each task to minimize the system utilization while guaranteeing the
+freshness bounds. The paper started with a simple case of two tasks, and then
+extends to three task chain and general N-task chain next.
+
+I have problem with the motivation of the studied problem. I agree the
+freshness of data (e.g., sensor data) is important in many applications.
+However, I don't understand why are people interested in the freshness
+constraint defined in this paper, i.e., the time distance between when it is
+produced and when it is consumed. Suppose the freshness constraint between a
+task A and a task B is 3. If a task A produces data at time 1, and consumed by
+another task B at time 5, the freshness constraint is violated. Now suppose we
+use a less powerful (or flawed) computer (communication infrastructure), so
+that task A produces its results at time 2.1, and still consumed by another
+task B at time 5. All of sudden, the freshness constraint is satisfied! In
+summary, the motivation of the problem model is not convincing.
+
+Dagaen: To do: More motivation.
+
+The reasoning of the results is quite hand-waving, and the correctness of the
+proposed methods are not fully justified. For example, in the three task case,
+the authors claimed d_{A->C} = d_{A->B} + E_B^{u,max} + d_{B->C}. Why is
+"E_B^{u,max}" used here? I guess the reason is using "E_B^{u,max}" leads to the
+"worst case" here. However, the authors must provide a proper framework to
+formulate and prove such relations.
+
+Dagaen: Explained a bit more and small intuition of why this holds for min case.
+
+In the problem model, each task has relative deadline, but in the technical
+part tasks are assumed to have implicit deadlines and this relative deadline
+parameter is useless (it should not be introduced if it is not used).
+
+Dagaen: I feel its worth considering especially after I clarified extension to
+period != deadline.
+
+The contents of Section 1 and Section 2 overlap with each other and should be
+put into one section.
+
+Dagaen: Combined them.

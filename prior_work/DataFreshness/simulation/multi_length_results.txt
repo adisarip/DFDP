@@ -1,0 +1,71 @@
+General:EDF
+Average Bound: 152.355882
+Avg Util: 72.163698
+Avg Avg Freshness: 15.430016
+Avg Max Staleness: 22.705491
+Exiting
+
+General:RM
+Average Bound: 152.355882
+Avg Util: 72.163698
+Avg Avg Freshness: 15.211031
+Avg Max Staleness: 22.297132
+Exiting
+
+RM:EDF
+Average Bound: 151.592593
+Avg Util: 71.964662
+Avg Avg Freshness: 15.342457
+Avg Max Staleness: 22.053523
+Exiting
+
+RM:RM
+Average Bound: 151.592593
+Avg Util: 71.964662
+Avg Avg Freshness: 15.178955
+Avg Max Staleness: 22.264906
+Exiting
+
+===========================================
+
+Average Bound: 330.824000
+Avg Util: 54.356377
+Avg Avg Freshness: 10.174265
+Avg Max Staleness: 13.794853
+Exiting
+
+Average Bound: 330.824000
+Avg Util: 54.356377
+Avg Avg Freshness: 10.018830
+Avg Max Staleness: 14.293583
+Exiting
+
+Average Bound: 330.824000
+Avg Util: 55.220340
+Avg Avg Freshness: 10.095781
+Avg Max Staleness: 13.806091
+Exiting
+
+Average Bound: 330.824000
+Avg Util: 55.220340
+Avg Avg Freshness: 10.029869
+Avg Max Staleness: 14.300227
+Exiting
+
+======================================= 2101 Set
+
+1
+
+2
+
+Average Bound: 327.255117
+Avg Util: 55.450838
+Avg Avg Freshness: 10.166149
+Avg Max Staleness: 12.970175
+Exiting
+
+Average Bound: 327.255117
+Avg Util: 55.450838
+Avg Avg Freshness: 9.998070
+Avg Max Staleness: 14.146528
+Exiting

@@ -1,0 +1,9 @@
+\section{Multiprocessor Systems}
+
+Our formulation extends nicely to multiprocessor systems since we do not make assumptions on how to schedule tasks. The worst case is that all tasks in the chain end up on the same processor which happens to be the exact case we consider. However, no assumptions on task location were made so tasks could be executed on the same or different processors.
+
+Also note that our formulation selects periods for each producing task and is agnostic to the consuming task. For each producer-consumer pair, the period of the producer is chosen so that the produced value is updated within the desired freshness constraint. It does not matter when nor where the consumer task is executed. As long as delays introduced in a multiprocessor system are accounted for in the data delay values, tasks may execute on any processor and still maintain the freshness guarantee.
+
+With this, it is simple to see that the generality of the formulation includes the multiprocessor scenario, and adding processors does not change the correctness of our solution. On the other hand, more processors does help ensure the schedulability of the resulting task set by increasing the resources available in the system and preventing job blocking and preemption. The only change required for use on a multiprocessor system is to use the schedulability test for the multiprocessor algorithm chosen once optimization results are obtained.
+
+Delays in job completion related to multiprocessor execution are not problematic, as shown in our section on preemption and other job execution delays.

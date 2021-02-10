@@ -1,0 +1,19 @@
+\section{Preemption and Other Job Delays}
+
+While Figure~\ref{fig:3Tasks} depicts task $B$ running without preemption, here we will explain why preemption (or other task delays during execution) do not invalidate our theory.
+
+\begin{theorem}
+	Preemption and other job delays do not cause data freshness violations.
+\end{theorem}
+
+\begin{proof}
+	Assume this is not the case, i.e. that job preemption and other delays cause a freshness miss. Let all preemption and other job delays be denoted by $p$.
+	
+	Consider any producer ($A$) and consumer ($B$) task pair. Note that the maximum wait scenario in Figure~\ref{fig:2Tasks} holds regardless of the execution time of the second job of task $A$ and regardless of the release time of task $B$. Thus our primary concern in the first execution of task $A$. Note that the first job of task $A$ experiencing preemption produces fresher data, so preemption of the first job does not extend $d_{A \to B}$ either. Hence, preemption of task $A$ or $B$ cannot extend $d_{A \to B}$ as long as the task set is schedulable. Therefore each local deadline is not violated by preemption.
+	
+	Now consider the intermediate tasks in the chain, which are a part of two, two-task scenarios. If preemption extends a job, its does not affect the first pair as execution time of a consumer is irrelevant. Preemption also does not effect the second pair, as preemption extends the completion time of the job resulting in fresher data local data in the worst-case scenario as described above. Therefore preemption of intermediate jobs does not violate freshness. Any preemption and other delays are experienced entirely within a local constraint, i.e. $p$ in preemption time comes with data $p$ newer than the task's local constraint in worst case.
+	
+	Since all subcomponents of the freshness bound are not violated by preemption, the end-to-end deadline is not violated by preemption.
+\end{proof}
+
+While we have proven preemption will not violate our freshness constraint, it is important to note that preemptability may be key to calculating schedulability. Our solution provides period assignments, which may affect priorities and preemption behavior, hence the post-result schedulability test should be mindful of the preemptability or non-preemptability of the implementation system when determining if the resulting task set is feasible.

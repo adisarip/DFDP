@@ -1,0 +1,59 @@
+100%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.02499201682298687
+Avg EDF Util: 0.02499201682298687
+
+90%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.027622875833628473
+Avg EDF Util: 0.027622875833628473
+
+80%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.030910617471224894
+Avg EDF Util: 0.030910617471224894
+
+70%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.03513636012110354
+Avg EDF Util: 0.03513636012110354
+
+60%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.04076832555727223
+Avg EDF Util: 0.04076832555727223
+
+50%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.048648577973963256
+Avg EDF Util: 0.048648577973963256
+
+40%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.06045920308963228
+Avg EDF Util: 0.06045920308963228
+
+30%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.08011793527637678
+Avg EDF Util: 0.08011793527637678
+
+20%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.11934170577301685
+Avg EDF Util: 0.11934170577301685
+
+10%:
+% RM Schedulable: 1.0
+% EDF Schedulable: 1.0
+Avg RM Util: 0.23631282572430237
+Avg EDF Util: 0.23631282572430237

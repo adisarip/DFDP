@@ -1,0 +1,46 @@
+\begin{thebibliography}{1}
+
+\bibitem{BelwalCheng}
+{\sc Belwal, C., and Cheng, A.}
+\newblock Generating bounded task periods for experimental schedulability
+  analysis.
+\newblock In {\em Embedded and Ubiquitous Computing (EUC), 2011 IFIP 9th
+  International Conference on\/} (Oct 2011), pp.~249--254.
+
+\bibitem{BiniNatale}
+{\sc Bini, E., and Di~Natale, M.}
+\newblock Optimal task rate selection in fixed priority systems.
+\newblock In {\em Real-Time Systems Symposium, 2005. RTSS 2005. 26th IEEE
+  International\/} (Dec 2005), pp.~11 pp.--409.
+
+\bibitem{ChantemWangLemmonHu}
+{\sc Chantem, T., Wang, X., Lemmon, M., and Hu, X.}
+\newblock Period and deadline selection for schedulability in real-time
+  systems.
+\newblock In {\em Real-Time Systems, 2008. ECRTS '08. Euromicro Conference
+  on\/} (July 2008), pp.~168--177.
+
+\bibitem{CODEMINE}
+{\sc Czerwonka, J., Nagappan, N., Schulte, W., and Murphy, B.}
+\newblock Codemine: Building a software development data analytics platform at
+  microsoft.
+\newblock {\em Software, IEEE 30}, 4 (July 2013), 64--71.
+
+\bibitem{Segev1990}
+{\sc Segev, A., and Fang, W.}
+\newblock Currency-based updates to distributed materialized views.
+\newblock In {\em Data Engineering, 1990. Proceedings. Sixth International
+  Conference on\/} (Feb 1990), pp.~512--520.
+
+\bibitem{SetoLehoczkySha}
+{\sc Seto, D., Lehoczky, J., and Sha, L.}
+\newblock Task period selection and schedulability in real-time systems.
+\newblock In {\em Real-Time Systems Symposium, 1998. Proceedings., The 19th
+  IEEE\/} (Dec 1998), pp.~188--198.
+
+\bibitem{Wang:1996:BAD:1189570.1189572}
+{\sc Wang, R.~Y., and Strong, D.~M.}
+\newblock Beyond accuracy: What data quality means to data consumers.
+\newblock {\em J. Manage. Inf. Syst. 12}, 4 (Mar. 1996), 5--33.
+
+\end{thebibliography}

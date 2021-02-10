@@ -1,0 +1,190 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      5500,        181]
+NotebookOptionsPosition[      5071,        161]
+NotebookOutlinePosition[      5416,        176]
+CellTagsIndexPosition[      5373,        173]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"p1", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{
+     "\"\<\\\\frac{\\\\sqrt{\\\\frac{E_A}{E_B}}d_{A \\\\to \
+C}-E_A}{2(1+\\\\sqrt{\\\\frac{E_A}{E_B}})} + \\\\frac{E_A}{2}\>\"", ",", 
+      "TeXForm"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"p2", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{
+     "\"\<\\\\frac{d_{A \\\\to C}}{2} - \
+\\\\frac{\\\\sqrt{\\\\frac{E_A}{E_B}}d_{A \\\\to \
+C}-E_A}{2(1+\\\\sqrt{\\\\frac{E_A}{E_B}})}\>\"", ",", "TeXForm"}], "]"}], 
+    "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"e1", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{"\"\<E_A\>\"", ",", "TeXForm"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"e2", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{"\"\<E_B\>\"", ",", "TeXForm"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"eq", "=", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"e1", "/", "p1"}], ")"}], "+", 
+    RowBox[{"(", 
+     RowBox[{"e2", "/", "p2"}], ")"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"simple", "=", 
+  RowBox[{"Simplify", "[", "eq", "]"}]}]}], "Input",
+ CellChangeTimes->{{3.6655136604886*^9, 3.6655136637949376`*^9}, {
+   3.6655137131377687`*^9, 3.665513743850452*^9}, {3.665513784301997*^9, 
+   3.6655137963184953`*^9}, {3.665513855895559*^9, 3.66551388398337*^9}, {
+   3.6655139780307837`*^9, 3.6655140278851514`*^9}, 3.665514077500222*^9, 
+   3.6655141549806023`*^9, {3.6655142813450584`*^9, 3.665514302186771*^9}, 
+   3.6655144297147913`*^9, {3.66551453100031*^9, 3.665514540854271*^9}}],
+
+Cell[BoxData[
+ FractionBox[
+  RowBox[{"2", " ", 
+   RowBox[{"(", 
+    RowBox[{
+     SubscriptBox["\[ExponentialE]", "A"], "+", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        RowBox[{"2", " ", 
+         SqrtBox[
+          FractionBox[
+           SubscriptBox["\[ExponentialE]", "A"], 
+           SubscriptBox["\[ExponentialE]", "B"]]]}]}], ")"}], " ", 
+      SubscriptBox["\[ExponentialE]", "B"]}]}], ")"}]}], 
+  RowBox[{
+   SubscriptBox["d", 
+    RowBox[{"A", "\[Rule]", "C"}]], "+", 
+   SubscriptBox["\[ExponentialE]", "A"]}]]], "Output",
+ CellChangeTimes->{3.665514439110444*^9, 3.665514542328307*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"p1", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{
+     "\"\<\\\\frac{d_{A \\\\to \
+C}+E_A}{2(1+\\\\sqrt{\\\\frac{E_B}{E_A}})}\>\"", ",", "TeXForm"}], "]"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"p2", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{
+     "\"\<\\\\frac{d_{A \\\\to \
+C}+E_A}{2(1+\\\\sqrt{\\\\frac{E_A}{E_B}})}\>\"", ",", "TeXForm"}], "]"}], 
+    "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"e1", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{"\"\<E_A\>\"", ",", "TeXForm"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"e2", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"ToExpression", "[", 
+     RowBox[{"\"\<E_B\>\"", ",", "TeXForm"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"eq", "=", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"e1", "/", "p1"}], ")"}], "+", 
+    RowBox[{"(", 
+     RowBox[{"e2", "/", "p2"}], ")"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"simple", "=", 
+  RowBox[{"Simplify", "[", "eq", "]"}]}]}], "Input",
+ CellChangeTimes->{
+  3.665514436050264*^9, {3.665514473986045*^9, 3.6655145487218256`*^9}}],
+
+Cell[BoxData[
+ FractionBox[
+  RowBox[{"2", " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        SqrtBox[
+         FractionBox[
+          SubscriptBox["\[ExponentialE]", "A"], 
+          SubscriptBox["\[ExponentialE]", "B"]]]}], ")"}], " ", 
+      SubscriptBox["\[ExponentialE]", "B"]}], "+", 
+     RowBox[{
+      SubscriptBox["\[ExponentialE]", "A"], " ", 
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        SqrtBox[
+         FractionBox[
+          SubscriptBox["\[ExponentialE]", "B"], 
+          SubscriptBox["\[ExponentialE]", "A"]]]}], ")"}]}]}], ")"}]}], 
+  RowBox[{
+   SubscriptBox["d", 
+    RowBox[{"A", "\[Rule]", "C"}]], "+", 
+   SubscriptBox["\[ExponentialE]", "A"]}]]], "Output",
+ CellChangeTimes->{3.665514512350133*^9, 3.6655145495093765`*^9}]
+}, Open  ]]
+},
+WindowSize->{707, 824},
+WindowMargins->{{Automatic, 85}, {Automatic, 39}},
+FrontEndVersion->"8.0 for Microsoft Windows (64-bit) (February 23, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 1727, 44, 292, "Input"],
+Cell[2309, 68, 625, 19, 74, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2971, 92, 1271, 39, 212, "Input"],
+Cell[4245, 133, 810, 25, 74, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

@@ -1,0 +1,7 @@
+\section{Discussion}
+
+Although these results are promising, we consider possible avenues of further improvement. For one, it abstracts away the scheduling algorithm. Given information about the scheduling algorithm, prioritization, and preemptability, one could likely produce freshness-enforcing parameters that result in lower utilization.
+
+We reiterate the limitation that this method does not guarantee the schedulability of the task set. This is due to our scheduler agnosticism. However, this is easily remedied by scheduler-specific schedulability tests. If the particular value produced by this method is unschedulable, there may or may not exist other parameters that schedule the task set while ensuring freshness for a given system.
+
+While we aimed to remain scheduler agnostic, future work could include modifying the optimization problem to ensure schedulability. The RM-specific formulation has most promise since those results are likely to be ran under RM. The RM formulation could also be modified to produce harmonic periods which increase schedulability and can aid in decreasing the number of tasks in a system by combining tasks with equal periods.

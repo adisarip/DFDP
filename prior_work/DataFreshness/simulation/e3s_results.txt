@@ -1,0 +1,23 @@
+General on RM
+Average Bound: 200.475000
+Avg Util: 29.002088
+Avg Avg Freshness: 4.770909
+Avg Max Staleness: 33.753344
+
+RM on RM
+Average Bound: 200.475000
+Avg Util: 29.475631
+Avg Avg Freshness: 4.771880
+Avg Max Staleness: 31.888774
+
+General on EDF
+Average Bound: 200.475000
+Avg Util: 29.002088
+Avg Avg Freshness: 13.729055
+Avg Max Staleness: 56.199563
+
+RM on EDF
+Average Bound: 200.475000
+Avg Util: 29.475631
+Avg Avg Freshness: 13.913347
+Avg Max Staleness: 53.762096

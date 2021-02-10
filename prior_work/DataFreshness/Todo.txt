@@ -1,0 +1,234 @@
+============================================================================
+                            NOT COMPLETED
+============================================================================
+
+============================================================================
+                            META-REVIEW
+============================================================================
+
+---------------------------------------------------------------------------
+Meta Reviewer's Detailed comments
+---------------------------------------------------------------------------
+
+The paper was rejected due to several concerns:
+
+- flaw in the evaluation - FIXED
+- concerns with the arbitrary selection of periods - FIXED/EXPLAINED
+- missing comparison to use of locking mechanisms
+- limitations of chain model - INCLUDED IN NEW OPT PROBLEM
+
+============================================================================
+                            REVIEWER #1
+============================================================================
+
+(-) The approach is only applicable to single task chains. Real systems
+frequently feature multiple tasks that read and process the same data (i.e., a
+chain may be A->{B,C,D,E}->{F,G}->H - with A being the data producer and H the
+end data consumer). In these cases, the utilization of the system is higher,
+but the end-to-end data freshness requirement is unmodified.
+
+============================================================================
+                            REVIEWER #2
+============================================================================
+
+* The presented solution claims to be optimal without the need of any
+scheduling (policy) assumptions. The authors achieve this by using twice the
+producer's period as an upper bound on the data ageing. However, this can be
+very pessimistic, i.e. it is not clear how this relates to the results that can
+be achieved with sub-optimal period selection but targeted countermeasures such
+as synchronization, offsets, etc. that are used in practice in order to reduce
+data age. For instance, from an engineering perspective, looking at the result
+in Figure 6, in which the second task was assigned approx. half the period of
+the first task, I would resort to assigning the same period to both tasks and
+use synchronization and an appropriate priority assignments such that the
+execution order is preserved (thereby eliminating any delay between A and B).
+Dagaen: Figure now shows Task A with lower period than task B.
+
+* Only single data freshness constraint per chain. In realistic scenarios, a
+task may be part of multiple chains (fork) and therefore subject to multiple
+freshness constraints.
+
+* The authors mention one very relevant related work that assumes harmonic
+periods, which is a commonly used and practical restriction as it, e.g., allows
+preserving execution orders. However, they do not mention how much they can
+improve over the existing solution by dropping this restriction.
+
+* In one part of the evaluation, the authors use a E3S benchmark but modify the
+task sets so that they meet the assumptions (no forks, chain length up to 3).
+Unfortunately, this destroys comparability of the results.
+
+============================================================================
+============================================================================
+============================================================================
+
+
+
+============================================================================
+                            COMPLETED
+============================================================================
+
+(*) In theorem 1, use "Section 3" instead of Section III.
+
+(*) Page 7, after figure 2: "Lemma 1" should be "Theorem 3" -- Dagaen: Actually the reference to the lemma is correct in this case
+
+(*) Page 9: d_{A->B} expression, extra ")" in the "Simplify" step.
+
+(*) Page 11: second paragraph: "covert" -> "convert"
+
+(*) Page 11: Section 7: typo/pasto in "to schedule task. that all tasks in the
+chain".
+
+* Page 3, first paragraph, "a job is released at most every P_A time":
+   From the remainder of this paper is appears that a job must also be executed
+at least every P_A time.
+   I assume you are using a strictly periodic model with implicit deadlines.
+Dagaen: This is correct, we cannot have tasks in a chain indefinetly not running. Have changed wording to be "at every P_A time"
+
+* Page 3, Section 3.1, last sentence
+   I infer from this that you are using "last-is-best" for the communication.
+Dagaen: Clarified with extra sentence.
+
+* Page 3, Section 3.2, last sentence
+   I believe you mean 'execution time' instead of 'WCET'.
+   Also it is unclear why you allow combing DLmin with E^u and DLmax with E^l,
+i.e. there is no use of E^u,min or E^l,max in the paper.
+Dagaen: fixed first part. Used * for generality and it takes up no more space.
+
+* Section 8.1
+   Which Linux version have you used?
+Dagaen: Added footnote
+
+* Page 4, Section 3.5, "Let E^*_A denote"
+   This should be 'E^*,*_A' to be consistent with the following problem
+statement.
+
+* Page 6, end of first paragraph (inline formula)
+   This should be 'E^l,min_A' instead of 'E^l_A'.
+
+* Page 11, third paragraph, "Once a solution is found..."
+   'covert' should be 'convert'
+
+* Page 7, "It would be job of the system designer..."
+   missing 'the'
+
+* Page 10, last formula (P_B)
+   The last 'E^u,max_B' is a subscript of d_A->C.
+
+* Page 12, second paragraph, "To test schedulability ... and the a utilization
+bound"
+   remove 'the'
+
+* Page 15, second line, "of the the original"
+   remove 'the'
+
+* Page 16, second paragraph, "Using the same generation...depicted in Figure 8"
+   Figure 8 does not depict what is mentioned here.
+Dagaen: Reviewer error, Fig 8 does show this.
+
+* Figure 8 has the same caption as Figure 7.
+
+* Page 19, last paragraph, "A iterative pruning based ..."
+   Should be "An iterative...".
+
+Optimisation formulation evaluation isn't that clear: "seems adequate for short
+to moderate chain lengths". can we detremine if the proposed optimisation acn
+provide a schedulable period selection?
+Dagaen: We've discussed this and the answer is no for general case, probably yes for RM with added work. For now will make sure this is clear again and that scheduler-agnosicism is primary reason why this is not done.
+
+- Points against:
+I haven't ben totally convinced by the N-tasks extension (section 6): authors
+don't explain (clearly) how they can formulate the end to end deadline as the
+combinaison of several local constraint (following the "intuition" that earlier
+chain tasks should have a higher priority).
+Dagaen: local constraint decomposition has nothing to do with priority or our intuition later on about periods. We have and will continue to make this clear.
+
+* Page 6, proof
+   Shouldn't the '>=' change into a '>' when you build the limit for epsilon ->
+0?
+Dagaen: No, we are subtracting epsilon so >= holds even as it approaches 0. Have reworked proof so its clearer.
+
+    * The significance of the RM-targeting formulation in the context of an EDF
+scheduler is not adequately explained.
+Dagaen: R-EDF has been removed, its not a realistic use case.
+
+* The figures are non-intuitive. One would expect the x-axis to start from
+100% and decrease to lower values corresponding to the reduction in the
+freshness bound.
+Dagaen: Reversed graphs.
+
+* Page 13, second paragraph, "We believe ... our ... theory tends to assign
+lower periods ... to tasks earlier in the chain."
+   This contradicts with your results presented in Figure 6.
+Dagaen: No longer contradicts (althrough we previously used "tends" anyways)
+
+* The solution assumes that tasks can be executed with arbitrary periods. Other
+constraints such as adherence to the Nyquist requirement on the sampling rate
+or stateful behavior are not considered. This is not wrong, but limits the
+applicability.
+Dagaen: Notes that arbitrary periods can be floored to nearest compatible period value and maintain safety. Also added how to enforce additional constraints such as Nyquist.
+
+* Periods can assume arbitrary values such that a realistic system is likely to
+end up with a large number of tasks.
+Dagaen: Also noted that tasks with similar periods could be rolled into one task using the smallest computed period.
+
+(-) The end-to-end data freshness problem is similar to a
+precedence-constrained problem with freshness value as maximum response-time
+constraint. The authors may want to extend the related work section to compare
+with precedence-constrained works.
+Dagaen: Explained differences in related works section.
+
+* The authors briefly motivate the problem of data freshness but do not provide
+an application example that benefits from their contribution. It remains
+unclear how their solution relates to realistic control tasks that may have
+additional constraints (other than data freshness) on their period.
+Dagaen: Mentioned how designer can add additional constraints such as Nyquist requirement. Also added some motiviation, more will come if I find more.
+
+* The N-task formulation of the optimization problem conceptually differs from
+the 3-task formulation as the former selects decreasing priorities within a
+chain (additional constraint). The latter, however, showed an optimal result
+for a particular instance which contradicts this constraint (Figure 6).
+Dagaen: Used another example that reflects our intuition.
+
+(*) Page 8: the discussion about the tradeoff between E^{u,max}_A and
+E^{l,min}_A is somewhat confusing, since it is not clear where this tradeoff is
+incorporated into the later analysis.
+Dagaen: Removed for now, may introduce and extend later.
+
+(-) A flaw in the evaluation of P_B during the proof of theorem 3 makes the
+three-task results not correct, thus affecting the whole evaluation process.
+Specifically, the formula for P_B on page 10 uses E^{l,min}_A instead of
+E^{l,min}_B in the evaluation of P_B = (d_{B->C} + E^{l,min}_B)/2. The formula
+of P_B provided in theorem 3 is not correct.
+Dagaen: This type did not make it into evaluation, so evaluation is fine. Fixed typo in expression.
+
+(-) The approach is practically applicable only to non-preemptive scheduling
+policies. When considering preemptive scheduling policies, there exist a
+circular dependency between the selection of periods (using the methodology of
+the paper) and the maximum response time of tasks due to preemptions. This
+circular dependency makes the approach difficult to apply to real systems,
+since the iterative resolution of all period/worst-case response time is often
+not feasible.
+Dagaen: Showed how preemption is not problematic.
+
+(-) The extension of the approach to multiprocessor systems looks complicated
+in the current formulation. Multiprocessor scheduling policies exacerbate the
+circular dependency problem already present on uniprocessor, since they require
+to factor different types of migration overheads in the analysis.
+Dagaen: Not an issue after showing preemption and other delays are not an issue.
+
+(-) The results in the evaluation section are not intuitive to follow:
+    * Average results for _preemptive_ scheduling policies in Linux are
+presented.
+Dagaen: Acceptable since we now show preemption is fine.
+
+* Page 7
+   You are mentioning the necessity to iterate between period assignment and
+WCRT analysis for realistic scenarios.
+   As you omit this iteration, can you give any guarantee that it converges?
+Dagaen: No longer need to worry about convergence. Preemption "doesn't matter" and only needs to be accounted for in final schedulability test.
+
+* Page 8
+   The first half of this page lacks clarity in language and expression.
+   It remains unclear how this is reflected in the formulas and why this was
+not considered in the two tasks scenario before.
+Dagaen: This was regarding u,max vs l,min of task B for the 3-task scenario in the freshness and utiliaztion formulas. This language has been removed and does not appear to be a problem as longer exeuctions of B produce fresher data.
