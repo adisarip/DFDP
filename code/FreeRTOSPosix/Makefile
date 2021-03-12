@@ -10,6 +10,8 @@ SRCROOT         = $(CURDIR)
 # .o directory
 ODIR            = obj
 
+CC = gcc
+
 # Source VPATHS
 VPATH           += $(SRCROOT)/Source
 VPATH	        += $(SRCROOT)/Source/portable/MemMang
@@ -108,7 +110,7 @@ CFLAGS += $(INCLUDES) $(CWARNS) -O2
 
 # Rules
 .PHONY : all
-all: FreeRTOSPosix
+all: simrtos
 
 
 # Fix to place .o files in ODIR
@@ -118,14 +120,14 @@ $(ODIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 # If verbose, print gcc execution, else hide
 ifeq ($(verbose),1)
-	@echo ">> Compiling $<"
+	@echo ">> Compiling with $(CC) $<"
 	$(CC) $(CFLAGS) -c -o $@ $<
 else
-	@echo ">> Compiling $(notdir $<)"
+	@echo ">> Compiling with $(CC) $(notdir $<)"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 endif
 
-FreeRTOSPosix: $(_OBJS)
+simrtos: $(_OBJS)
 	@echo ">> Linking $@..."
 ifeq ($(verbose),1)
 	$(CC) $(CFLAGS) $^ $(LINKFLAGS) $(LIBS) -o $@
