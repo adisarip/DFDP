@@ -100,7 +100,7 @@ ifneq ($(shell uname), Darwin)
 CFLAGS += -pthread
 endif
 
-# MAX_NUMBER_OF_TASKS = max pthreads used in the POSIX port. 
+# MAX_NUMBER_OF_TASKS = max pthreads used in the POSIX port.
 # Default value is 64 (_POSIX_THREAD_THREADS_MAX), the minimum number required by POSIX.
 CFLAGS += -DMAX_NUMBER_OF_TASKS=300
 
@@ -120,33 +120,29 @@ $(ODIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 # If verbose, print gcc execution, else hide
 ifeq ($(verbose),1)
-	@echo ">> Compiling with $(CC) $<"
+	@echo "[MAKE] Compiling with $(CC) $<"
 	$(CC) $(CFLAGS) -c -o $@ $<
 else
-	@echo ">> Compiling with $(CC) $(notdir $<)"
+	@echo "[MAKE] Compiling with $(CC) $(notdir $<)"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 endif
 
 simrtos: $(_OBJS)
-	@echo ">> Linking $@..."
+	@echo "[MAKE] Linking $@..."
 ifeq ($(verbose),1)
 	$(CC) $(CFLAGS) $^ $(LINKFLAGS) $(LIBS) -o $@
 else
 	@$(CC) $(CFLAGS) $^ $(LINKFLAGS) $(LIBS) -o $@
 endif
 
-	@echo "-------------------------"
-	@echo "BUILD COMPLETE: $@"
-	@echo "-------------------------"
+	@echo "[MAKE] BUILD COMPLETE: $@"
 
 .PHONY : clean
 clean:
-	@-rm -rf $(ODIR) FreeRTOS-Sim
-	@echo "--------------"
-	@echo "CLEAN COMPLETE"
-	@echo "--------------"
+	@-rm -rf $(ODIR) simrtos
+	@echo "[MAKE] CLEAN COMPLETE"
 
 
 .PHONY: valgrind
-valgrind: FreeRTOS-Sim
-	valgrind.bin --tool=memcheck --leak-check=full --show-reachable=yes --track-fds=yes ./FreeRTOS-Sim
+valgrind: simrtos
+	valgrind.bin --tool=memcheck --leak-check=full --show-reachable=yes --track-fds=yes ./simrtos

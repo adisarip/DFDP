@@ -35,6 +35,18 @@ void FPDS::displayPriorityOrder()
     cout << endl;
 }
 
+void FPDS::displayPriorityOrderWithFNRLengths()
+{
+    int size  = mTaskSet.size();
+    cout << size << " ";
+    for (int i=0; i < size; i++)
+    {
+        if(i == 0) cout << mTaskSet[i].id << ":" << mFinalFNRLength[i];
+        else cout << "," << mTaskSet[i].id << ":" << mFinalFNRLength[i];
+    }
+    cout << endl;
+}
+
 bool FPDS::computeOptimalPriorityOrder()
 {
     bool isSchedulable = false;

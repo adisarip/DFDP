@@ -42,7 +42,7 @@ int main (int argc, char* argv[])
         if (isLog) cout << "\n[FPDS] The given taskset is SCHEDULABLE using FPDS\n" << endl;
         if (isLog) cout << "Final Schedulable Order of Taskset : " << flush;
         cout << "SCHEDULABLE" << endl;
-        xFpds.displayPriorityOrder();
+        xFpds.displayPriorityOrderWithFNRLengths();
     }
     else
     {

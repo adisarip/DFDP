@@ -38,6 +38,9 @@ class FPDS
     // Display the Priority Order
     void displayPriorityOrder();
 
+    // Display priority order with
+    void displayPriorityOrderWithFNRLengths();
+
     // protected
   protected:
     // Input data utilities

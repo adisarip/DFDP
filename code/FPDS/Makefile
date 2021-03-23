@@ -19,14 +19,13 @@ FILES   := $(wildcard $(SRCDIR)/*.C)
 OBJECTS := $(FILES:$(SRCDIR)/%.C=$(OBJDIR)/%.o)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@
-	@echo "Linking Complete."
-	@echo "To start the \"FPDS Computing\" run --> "$(BINDIR)"/"$(TARGET)
+	@$(CC) $(OBJECTS) -o $@
+	@echo "[MAKE] Linking Complete."
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.C
-	$(CC) $(CCFLAGS) -c $< -o $@
-	@echo "Compiled "$<" successfully."
+	@$(CC) $(CCFLAGS) -c $< -o $@
+	@echo "[MAKE] Compiled "$<" successfully."
 
 clean:
-	@echo "Cleaning all the object files and binaries."
-	rm -f core $(OBJECTS) $(BINDIR)/$(TARGET)
+	@echo "[MAKE] Cleaning all the object files and binaries."
+	@rm -f core $(OBJECTS) $(BINDIR)/$(TARGET)
