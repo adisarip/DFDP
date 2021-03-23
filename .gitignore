@@ -2,9 +2,6 @@
 *.d
 .DS_Store
 
-fpds
-simrtos
-
 # Compiled Object files
 *.slo
 *.lo
