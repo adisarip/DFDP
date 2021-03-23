@@ -14,6 +14,7 @@ struct TaskData
     // Data
     uint       id;
     uint       priority;
+    uint       fnr_length;
     TickType_t release_time;
     TickType_t period;
     TickType_t execution_time;
@@ -41,7 +42,7 @@ void get_priority_order_using_fpds(char* filename)
 
 void run_task(void* data)
 {
-    printf("Start DFDP evaluation ...%u\n", data);
+    printf("Start DFDP evaluation ...%p\n", data);
     fflush(stdout);
     vTaskDelete(NULL);
 }

@@ -23,7 +23,13 @@ struct Task
 class FPDS
 {
   public:
-    FPDS(string file);
+    enum ExecutionMode
+    {
+        DisableLogging = 0, // default
+        EnableLogging  = 1  // set when executed in silent mode
+    };
+
+    FPDS(string file, FPDS::ExecutionMode mode = FPDS::DisableLogging);
     ~FPDS();
 
     // Compute the FNR length and Assign Priorities to Taskset
@@ -65,6 +71,7 @@ class FPDS
 
     // data
   private:
+    FPDS::ExecutionMode mMode;
     string iFile;
     int mTaskCount;
     int mHyperPeriodLength;
