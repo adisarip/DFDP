@@ -34,12 +34,12 @@ def main(data_file):
     home_dir = os.getcwd()
     # build FPDS binaries
     print("[INFO] Building FPDS binaries ...")
-    run_fpds_build_cmd = "cd " + home_dir + FPDS_DIR + "; make clean; make; cd " + home_dir
+    run_fpds_build_cmd = "cd " + home_dir + FPDS_DIR + "; make; cd " + home_dir
     os.system(run_fpds_build_cmd)
 
     # build RTOS binaries
     print("[INFO] Building RTOS simulator binaries ...")
-    run_rtos_build_cmd = "cd " + home_dir + RTOS_DIR + "; make clean; make; cd " + home_dir
+    run_rtos_build_cmd = "cd " + home_dir + RTOS_DIR + "; make; cd " + home_dir
     os.system(run_rtos_build_cmd)
 
     # Compute the priority order of the task-set using FPDS

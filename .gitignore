@@ -31,3 +31,6 @@
 *.exe
 *.out
 *.app
+code/FPDS/bin/fpds
+code/FreeRTOSPosix/simrtos
+
