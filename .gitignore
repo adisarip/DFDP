@@ -29,7 +29,7 @@
 
 # Executables
 *.exe
-*.out
+#*.out
 *.app
 code/FPDS/bin/fpds
 code/FreeRTOSPosix/simrtos
