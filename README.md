@@ -65,6 +65,13 @@
 
 **_Sample input file format:_**
 >```
+> # Task set for running FNR-PA Algorithm for FPDS scheduling
+> # task_id, task_period, task_execution_time, task_relative_deadline
+> #
+> # Task Set-1 (Given in Paper):
+> 1,250,100,175
+> 2,400,100,300
+> 3,350,100,325
 >```
 
 **_Sample Execution Run:_**
@@ -72,6 +79,41 @@
 > **./run.py <input_task_data_file\>**
 >
 >```
+> code$ ./run.py taskset.txt
+> [INFO] Building FPDS binaries ...
+> [MAKE] Cleaning all the object files and binaries.
+> [MAKE] Compiled src/FPDS.C successfully.
+> [MAKE] Compiled src/TestFPDS.C successfully.
+> [MAKE] Linking Complete.
+> [INFO] Building RTOS simulator binaries ...
+> [MAKE] CLEAN COMPLETE
+> [MAKE] Compiling with gcc croutine.c
+> [MAKE] Compiling with gcc event_groups.c
+> [MAKE] Compiling with gcc list.c
+> [MAKE] Compiling with gcc queue.c
+> [MAKE] Compiling with gcc tasks.c
+> [MAKE] Compiling with gcc timers.c
+> [MAKE] Compiling with gcc heap_3.c
+> [MAKE] Compiling with gcc port.c
+> [MAKE] Compiling with gcc main.c
+> [MAKE] Linking simrtos...
+> [MAKE] BUILD COMPLETE: simrtos
+> [INFO] Simulating Data-Freshness on FreeRTOS
+> Running as PID: 48621
+> Timer Resolution for Run TimeStats is 100 ticks per second.
+> [RTOS] Task-1: [0] period(250) execution_time(100) deadline(175) priority(3) fnr_length(1)
+> Task-1 : Response Time : 100
+> [RTOS] Task-3: [1] period(400) execution_time(100) deadline(300) priority(2) fnr_length(1)
+> Task-3 : Response Time : 200
+> [RTOS] Task-2: [2] period(350) execution_time(100) deadline(325) priority(1) fnr_length(51)
+> [INFO] Data Freshness Summary:
+> ==============================
+>  Received Data            = ABCD
+>  Timestamp while creation = 0
+>  Timestamp when received  = 200
+>  Data Freshness quotient  = 200
+> ==============================
+> code$
 >```
 
 **_Trace Messages:_**

@@ -66,7 +66,7 @@ void run_task(void* data)
     TickType_t current_tick_count = xTaskGetTickCount();
 
     //BaseType_t xResult;
-    if (p_task_data->index == 0)
+    if (p_task_data->priority == p_task_data->task_count)
     {
         // first task to be started by the scheduler
         FreshData fresh_data = generate_freshness_data();
@@ -87,41 +87,7 @@ void run_task(void* data)
             }
         }
     }
-    else if (p_task_data->index > 0 &&
-             p_task_data->index < p_task_data->task_count-1)
-    {
-        // remaining tasks except the last one
-        uint32_t data_received = 0;
-        xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
-                        0, // No need to clear any bits in the notification while exiting
-                        &data_received, // variable to receive the notification data
-                        portMAX_DELAY); // Wait for the notification indefinitely
-
-        // perform some task specific computations
-        // send the data to the next task
-        bool isDataSent = false;
-        while(1)
-        {
-            TickType_t tick_count = xTaskGetTickCount();
-            if (!isDataSent && data_received != 0)
-            {
-                xTaskNotify(xTask[p_task_data->index+1],
-                            data_received,
-                            eSetValueWithOverwrite);
-                isDataSent = true;
-            }
-            if (tick_count >= current_tick_count + p_task_data->execution_time)
-            {
-                printf("Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
-                if (tick_count > p_task_data->period)
-                {
-                    printf("Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
-                }
-                break;
-            }
-        }
-    }
-    else
+    else if (p_task_data->priority == 1)
     {
         // last task
         uint32_t data_received;
@@ -147,6 +113,39 @@ void run_task(void* data)
                 printf(" Data Freshness quotient  = %u\n", new_tick_count - final_fresh_data.fields.timestamp);
                 printf("==============================\n");
                 break;
+            }
+            if (tick_count >= current_tick_count + p_task_data->execution_time)
+            {
+                printf("Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
+                if (tick_count > p_task_data->period)
+                {
+                    printf("Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        // remaining tasks except the last one
+        uint32_t data_received = 0;
+        xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
+                        0, // No need to clear any bits in the notification while exiting
+                        &data_received, // variable to receive the notification data
+                        portMAX_DELAY); // Wait for the notification indefinitely
+
+        // perform some task specific computations
+        // send the data to the next task
+        bool isDataSent = false;
+        while(1)
+        {
+            TickType_t tick_count = xTaskGetTickCount();
+            if (!isDataSent && data_received != 0)
+            {
+                xTaskNotify(xTask[p_task_data->index+1],
+                            data_received,
+                            eSetValueWithOverwrite);
+                isDataSent = true;
             }
             if (tick_count >= current_tick_count + p_task_data->execution_time)
             {
