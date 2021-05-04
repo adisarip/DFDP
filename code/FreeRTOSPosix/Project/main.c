@@ -7,17 +7,6 @@
 #include <string.h>
 #include "dfdptask.h"
 
-// helper functions declarations
-void fill_priority_data(int task_count,
-                        char* p_priority_order,
-                        TaskData* p_task_data);
-void fill_task_data(int task_index,
-                    char* p_line,
-                    TaskData* p_task_data);
-FreshData generate_freshness_data(void);
-void print_task_data(TaskData* p_data);
-
-
 //============================ Main interface function definitons ============================//
 void create_task_dataset(int task_count,
                          char* p_priority_order,
@@ -69,20 +58,21 @@ void run_task(void* data)
     if (p_task_data->priority == p_task_data->task_count)
     {
         // first task to be started by the scheduler
-        FreshData fresh_data = generate_freshness_data();
-        xTaskNotify(xTask[p_task_data->index+1],
-                    fresh_data.fdata,
-                    eSetValueWithOverwrite);
         while(1)
         {
             TickType_t tick_count = xTaskGetTickCount();
             if (tick_count >= current_tick_count + p_task_data->execution_time)
             {
-                printf("Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
+                printf("[RTOS] Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
                 if (tick_count > p_task_data->period)
                 {
-                    printf("Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
+                    printf("[RTOS] Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
                 }
+                FreshData fresh_data = generate_freshness_data();
+                printf("[RTOS] Task[%d] sending data to Task[%d]\n", p_task_data->index, p_task_data->index+1);
+                xTaskNotify(xTask[p_task_data->index+1],
+                            fresh_data.fdata,
+                            eSetValueWithOverwrite);
                 break;
             }
         }
@@ -95,6 +85,7 @@ void run_task(void* data)
                         0, // No need to clear any bits in the notification while exiting
                         &data_received, // variable to receive the notification data
                         portMAX_DELAY); // Wait for the notification indefinitely
+        printf("[RTOS] Task[%d] received data. Sending completed.\n", p_task_data->index);
         while(1)
         {
             TickType_t tick_count = xTaskGetTickCount();
@@ -105,21 +96,21 @@ void run_task(void* data)
                 FreshData final_fresh_data;
                 final_fresh_data.fdata = data_received;
 
-                printf("[INFO] Data Freshness Summary:\n");
-                printf("==============================\n");
-                printf(" Received Data            = %X\n", final_fresh_data.fields.data);
-                printf(" Timestamp while creation = %u\n", final_fresh_data.fields.timestamp);
-                printf(" Timestamp when received  = %u\n", new_tick_count);
-                printf(" Data Freshness quotient  = %u\n", new_tick_count - final_fresh_data.fields.timestamp);
-                printf("==============================\n");
-                break;
+                printf("[RTOS] Data Freshness Summary:\n");
+                printf("[RTOS] ==============================\n");
+                printf("[RTOS]  Received Data            = %X\n", final_fresh_data.fdata);
+                printf("[RTOS]  Timestamp while creation = %u\n", final_fresh_data.fields.timestamp);
+                printf("[RTOS]  Timestamp when received  = %u\n", new_tick_count);
+                printf("[RTOS]  Data Freshness quotient  = %u\n", new_tick_count - final_fresh_data.fields.timestamp);
+                printf("[RTOS] ==============================\n");
+                data_received = 0;
             }
             if (tick_count >= current_tick_count + p_task_data->execution_time)
             {
-                printf("Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
+                printf("[RTOS] Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
                 if (tick_count > p_task_data->period)
                 {
-                    printf("Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
+                    printf("[RTOS] Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
                 }
                 break;
             }
@@ -133,7 +124,7 @@ void run_task(void* data)
                         0, // No need to clear any bits in the notification while exiting
                         &data_received, // variable to receive the notification data
                         portMAX_DELAY); // Wait for the notification indefinitely
-
+        printf("[RTOS] Task[%d] received data\n", p_task_data->index);
         // perform some task specific computations
         // send the data to the next task
         bool isDataSent = false;
@@ -142,6 +133,7 @@ void run_task(void* data)
             TickType_t tick_count = xTaskGetTickCount();
             if (!isDataSent && data_received != 0)
             {
+                printf("[RTOS] Task[%d] sending data to Task[%d]\n", p_task_data->index, p_task_data->index+1);
                 xTaskNotify(xTask[p_task_data->index+1],
                             data_received,
                             eSetValueWithOverwrite);
@@ -149,10 +141,10 @@ void run_task(void* data)
             }
             if (tick_count >= current_tick_count + p_task_data->execution_time)
             {
-                printf("Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
+                printf("[RTOS] Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
                 if (tick_count > p_task_data->period)
                 {
-                    printf("Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
+                    printf("[RTOS] Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
                 }
                 break;
             }
@@ -216,6 +208,7 @@ void print_task_data(TaskData* p_data)
     fflush(stdout);
 }
 
+//================== It all starts here ... ==================//
 
 int main (int argc, char* argv[])
 {
@@ -232,7 +225,7 @@ int main (int argc, char* argv[])
     if (task_count > MAX_RTOS_SCHEDULER_TASKS)
     {
         printf("[ERROR] Max number of RTOS tasks supported are %d\n", MAX_RTOS_SCHEDULER_TASKS);
-        printf("[INFO]  Re-configure the setting 'MAX_RTOS_SCHEDULER_TASKS' to support additional tasks\n");
+        printf("[RTOS]  Re-configure the setting 'MAX_RTOS_SCHEDULER_TASKS' to support additional tasks\n");
         fflush(stdout);
         return 0;
     }

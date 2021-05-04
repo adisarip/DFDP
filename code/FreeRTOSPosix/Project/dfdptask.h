@@ -50,4 +50,14 @@ void create_task_dataset(int task_count,
                          TaskData* p_task_data);
 void run_task(void* data);
 
+// helper functions declarations
+void fill_priority_data(int task_count,
+                        char* p_priority_order,
+                        TaskData* p_task_data);
+void fill_task_data(int task_index,
+                    char* p_line,
+                    TaskData* p_task_data);
+FreshData generate_freshness_data(void);
+void print_task_data(TaskData* p_data);
+
 #endif // DFDPTASK_H
