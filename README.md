@@ -26,7 +26,8 @@
  4. FreeRTOS Scheduler will schedule the taskset (based on the priorities) provided.
  5. Then using task notifications feature of FreeRTOS, we can pass some data and its creation time embedded within a 32-bit unsigned integer value and pass through all the tasks till the last task.
  6. Once this data object (notification) reaches the last task, we will compute the current time and see the difference between created time (stored in the data object) and current time which is nothing but the freshness quotient.
- 7. From there on we will perform some tests and try to make use of the FNR lengths **(to be continued)**
+ 7. From there on we will perform some tests and try to make use of the FNR lengths.
+ 8. The FreeRTOS implementation doesn't support pre-emptive scheduling by default, hence I have implemented the support of it in the current source.
 
 ## Source Tree
 >- Given below is the source tree for the current assignment.
@@ -47,7 +48,6 @@
 > │   ├── Makefile
 > │   ├── Project
 > │   │   ├── FreeRTOSConfig.h
-> │   │   ├── dfdptask.c
 > │   │   ├── dfdptask.h
 > │   │   └── main.c
 > │   ├── README.md
@@ -99,20 +99,88 @@
 > [MAKE] Linking simrtos...
 > [MAKE] BUILD COMPLETE: simrtos
 > [INFO] Simulating Data-Freshness on FreeRTOS
-> Running as PID: 48621
+> Running as PID: 47751
 > Timer Resolution for Run TimeStats is 100 ticks per second.
-> [RTOS] Task-1: [0] period(250) execution_time(100) deadline(175) priority(3) fnr_length(1)
-> Task-1 : Response Time : 100
-> [RTOS] Task-3: [1] period(400) execution_time(100) deadline(300) priority(2) fnr_length(1)
-> Task-3 : Response Time : 200
-> [RTOS] Task-2: [2] period(350) execution_time(100) deadline(325) priority(1) fnr_length(51)
-> [INFO] Data Freshness Summary:
-> ==============================
->  Received Data            = ABCD
->  Timestamp while creation = 0
->  Timestamp when received  = 200
->  Data Freshness quotient  = 200
-> ==============================
+> [RTOS] Task-1: [0] period(300) execution_time(100) deadline(200) priority(3) fnr_length(1)
+> [Task-1] Released : 0
+> [Task-1] Running with #ticks = 50 || 100
+> [Task-1] Running with #ticks = 100 || 100
+> [Task-1] Execution Completed. Response Time : 100
+> Task[0] --> sending data to --> Task[1]
+> [RTOS] Task-2: [1] period(500) execution_time(150) deadline(300) priority(2) fnr_length(1)
+> [Task-2] Released : 0
+> [Task-2] Pre-empted for 100 ticks [0 - 100]
+> [Task-2] Running with #ticks = 100 || 250
+> [Task-2] Running with #ticks = 150 || 250
+> [Task-2] Running with #ticks = 200 || 250
+> [Task-2] Running with #ticks = 250 || 250
+> [Task-2] Execution Completed. Response Time : 250
+> Task[1] --> sending data to --> Task[2]
+> [RTOS] Task-3: [2] period(500) execution_time(100) deadline(500) priority(1) fnr_length(1)
+> [Task-3] Released : 0
+> [Task-3] Pre-empted for 250 ticks [0 - 250]
+> [Task-3] Running with #ticks = 250 || 350
+> [Task-1] Released : 300
+> [Task-1] Running with #ticks = 300 || 400
+> [Task-1] Running with #ticks = 350 || 400
+> [Task-1] Running with #ticks = 400 || 400
+> [Task-1] Execution Completed. Response Time : 100
+> Task[0] --> sending data to --> Task[1]
+> [Task-3] Pre-empted for 351 ticks [299 - 400]
+> [Task-3] Running with #ticks = 400 || 451
+> [Task-3] Running with #ticks = 450 || 451
+> [Task-3] Execution Completed. Response Time : 451
+> [Task-2] Released : 500
+> [Task-2] Running with #ticks = 500 || 650
+> [Task-2] Running with #ticks = 550 || 650
+> [Task-1] Released : 600
+> [Task-1] Running with #ticks = 600 || 700
+> [Task-1] Running with #ticks = 650 || 700
+> [Task-1] Running with #ticks = 700 || 700
+> [Task-1] Execution Completed. Response Time : 100
+> Task[0] --> sending data to --> Task[1]
+> [Task-2] Pre-empted for 101 ticks [599 - 700]
+> [Task-2] Running with #ticks = 700 || 751
+> [Task-2] Running with #ticks = 750 || 751
+> [Task-2] Execution Completed. Response Time : 251
+> Task[1] --> sending data to --> Task[2]
+> [Task-3] Released : 500
+> [Task-3] Pre-empted for 251 ticks [500 - 751]
+> [Task-3] Running with #ticks = 800 || 851
+> [Task-3] Running with #ticks = 850 || 851
+> [Task-3] Execution Completed. Response Time : 351
+> [Task-1] Released : 900
+> [Task-1] Running with #ticks = 900 || 1000
+> [Task-1] Running with #ticks = 950 || 1000
+> [Task-1] Running with #ticks = 1000 || 1000
+> [Task-1] Execution Completed. Response Time : 100
+> Task[0] --> sending data to --> Task[1]
+> [Task-2] Released : 1000
+> [Task-2] Running with #ticks = 1000 || 1150
+> [Task-2] Running with #ticks = 1050 || 1150
+> [Task-2] Running with #ticks = 1100 || 1150
+> [Task-2] Running with #ticks = 1150 || 1150
+> [Task-2] Execution Completed. Response Time : 150
+> Task[1] --> sending data to --> Task[2]
+> [Task-3] Released : 1000
+> [Task-3] Pre-empted for 150 ticks [1000 - 1150]
+> [Task-3] Running with #ticks = 1150 || 1250
+> [Task-1] Released : 1200
+> [Task-1] Running with #ticks = 1200 || 1300
+> [Task-1] Running with #ticks = 1250 || 1300
+> [Task-1] Running with #ticks = 1300 || 1300
+> [Task-1] Execution Completed. Response Time : 100
+> Task[0] --> sending data to --> Task[1]
+> [Task-3] Pre-empted for 251 ticks [1199 - 1300]
+> [Task-3] Running with #ticks = 1300 || 1351
+> [Task-3] Running with #ticks = 1350 || 1351
+> [Task-3] Execution Completed. Response Time : 351
+> [Task-1] Released : 1500
+> [Task-1] Reached Hyper-period !!!
+> [Task-2] Released : 1500
+> [Task-2] Reached Hyper-period !!!
+> [Task-3] Released : 1500
+> [Task-3] Reached Hyper-period !!!
 > code$
 >```
 
