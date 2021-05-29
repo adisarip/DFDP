@@ -52,101 +52,208 @@ void run_task(void* data)
 {
     TaskData* p_task_data = (TaskData*)data;
     print_task_data(p_task_data);
-    TickType_t current_tick_count = xTaskGetTickCount();
 
     //BaseType_t xResult;
     if (p_task_data->priority == p_task_data->task_count)
     {
         // first task to be started by the scheduler
+        TickType_t start_tick_count = p_task_data->release_time;
+        printf("[Task-%u] Released : %d\n", p_task_data->id, start_tick_count);
+        TickType_t prev_tick_count = 0;
         while(1)
         {
             TickType_t tick_count = xTaskGetTickCount();
-            if (tick_count >= current_tick_count + p_task_data->execution_time)
+            if (tick_count >= pdMS_TO_TICKS(1500))
             {
-                printf("[RTOS] Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
-                if (tick_count > p_task_data->period)
-                {
-                    printf("[RTOS] Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
-                }
-                FreshData fresh_data = generate_freshness_data();
-                printf("[RTOS] Task[%d] sending data to Task[%d]\n", p_task_data->index, p_task_data->index+1);
-                xTaskNotify(xTask[p_task_data->index+1],
-                            fresh_data.fdata,
-                            eSetValueWithOverwrite);
+                // stop the execution once the hyper-period is reached
+                printf("[Task-%u] Reached Hyper-period !!!\n", p_task_data->id);
                 break;
+            }
+            if (tick_count % 50 == 0 && prev_tick_count != tick_count)
+            {
+                prev_tick_count = tick_count;
+                printf("[Task-%u] Running with #ticks = %d || %d\n", p_task_data->id, tick_count, start_tick_count + p_task_data->execution_time);
+            }
+
+            if (tick_count >= start_tick_count + p_task_data->execution_time)
+            {
+                if (tick_count >= start_tick_count + p_task_data->deadline)
+                {
+                    printf("[Task-%u] DEADLINE VIOLATION !!!\n", p_task_data->id);
+                    break;
+                }
+                if (tick_count == start_tick_count + p_task_data->execution_time)
+                {
+                    printf("[Task-%u] Execution Completed. Response Time : %d\n", p_task_data->id, tick_count-start_tick_count);
+                    // Completed execution of the current job.
+                    // Generate and send the Freshness data to next task
+                    printf("Task[%d] --> sending data to --> Task[%d]\n", p_task_data->index, p_task_data->index+1);
+                    //FreshData fresh_data = generate_freshness_data();
+                    //xTaskNotify(xTask[p_task_data->index+1],
+                    //            fresh_data.fdata,
+                    //            eSetValueWithOverwrite);
+                    vTaskDelay(start_tick_count + p_task_data->period - tick_count);
+                    start_tick_count += p_task_data->period;
+                    //start_tick_count = xTaskGetTickCount();
+                    printf("[Task-%u] Released : %d\n", p_task_data->id, start_tick_count);
+                }
             }
         }
     }
     else if (p_task_data->priority == 1)
     {
         // last task
-        uint32_t data_received;
-        xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
-                        0, // No need to clear any bits in the notification while exiting
-                        &data_received, // variable to receive the notification data
-                        portMAX_DELAY); // Wait for the notification indefinitely
-        printf("[RTOS] Task[%d] received data. Sending completed.\n", p_task_data->index);
+        //uint32_t data_received = 0;
+        TickType_t start_tick_count = p_task_data->release_time;
+        printf("[Task-%u] Released : %d\n", p_task_data->id, start_tick_count);
+        TickType_t prev_tick_count = 0;
+        TickType_t prev_run_tick_count = 0;
+        TickType_t preempted_ticks = 0;
+        TickType_t blocked_ticks = 0;
+        //xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
+        //                0, // No need to clear any bits in the notification while exiting
+        //                &data_received, // variable to receive the notification data
+        //                portMAX_DELAY); // Wait for the notification indefinitely
+        //printf("[RTOS] Task[%d] received data. Sending completed.\n", p_task_data->index);
+        prev_run_tick_count = start_tick_count;
         while(1)
         {
             TickType_t tick_count = xTaskGetTickCount();
-            if (data_received !=0)
+            if (tick_count >= pdMS_TO_TICKS(1500))
             {
-                // Get current timestamp
-                TickType_t new_tick_count = xTaskGetTickCount();
-                FreshData final_fresh_data;
-                final_fresh_data.fdata = data_received;
-
-                printf("[RTOS] Data Freshness Summary:\n");
-                printf("[RTOS] ==============================\n");
-                printf("[RTOS]  Received Data            = %X\n", final_fresh_data.fdata);
-                printf("[RTOS]  Timestamp while creation = %u\n", final_fresh_data.fields.timestamp);
-                printf("[RTOS]  Timestamp when received  = %u\n", new_tick_count);
-                printf("[RTOS]  Data Freshness quotient  = %u\n", new_tick_count - final_fresh_data.fields.timestamp);
-                printf("[RTOS] ==============================\n");
-                data_received = 0;
-            }
-            if (tick_count >= current_tick_count + p_task_data->execution_time)
-            {
-                printf("[RTOS] Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
-                if (tick_count > p_task_data->period)
-                {
-                    printf("[RTOS] Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
-                }
+                // stop the execution once the hyper-period is reached
+                printf("[Task-%u] Reached Hyper-period !!!\n", p_task_data->id);
                 break;
+            }
+            if (tick_count - prev_run_tick_count > 1)
+            {
+                // check if the difference is more than 1 tick count
+                // if so, then there has been some miss in the continuity of the task
+                // which means this task was pre-empted for a while by another higher priority
+                // task. Now adjust the task counters for current task execution.
+                preempted_ticks += (tick_count - prev_run_tick_count);
+                printf("[Task-%u] Pre-empted for %d ticks [%d - %d]\n", p_task_data->id, preempted_ticks, prev_run_tick_count, tick_count);
+                prev_run_tick_count = tick_count;
+            }
+            // printing the task execution progress
+            if (tick_count % 50 == 0 && prev_tick_count != tick_count)
+            {
+                prev_tick_count = tick_count;
+                printf("[Task-%u] Running with #ticks = %d || %d\n", p_task_data->id, tick_count, start_tick_count + p_task_data->execution_time + preempted_ticks);
+            }
+
+            if (tick_count >= start_tick_count + p_task_data->execution_time + preempted_ticks)
+            {
+                if (tick_count >= start_tick_count + p_task_data->deadline)
+                {
+                    printf("[Task-%u] DEADLINE VIOLATION !!!\n", p_task_data->id);
+                    break;
+                }
+                if (tick_count == start_tick_count + p_task_data->execution_time + preempted_ticks)
+                {
+                    // execution completed. block until next release time
+                    printf("[Task-%u] Execution Completed. Response Time : %d\n", p_task_data->id, tick_count-start_tick_count);
+                    blocked_ticks = start_tick_count + p_task_data->period - tick_count;
+                    vTaskDelay(blocked_ticks);
+                    start_tick_count += p_task_data->period;
+                    //start_tick_count = xTaskGetTickCount();
+                    // Next job released for the task
+                    printf("[Task-%u] Released : %d\n", p_task_data->id, start_tick_count);
+                    preempted_ticks = 0;
+                }
+            }
+
+            if (blocked_ticks > 0)
+            {
+                prev_run_tick_count = start_tick_count;
+                blocked_ticks = 0;
+            }
+            else
+            {
+                prev_run_tick_count = tick_count;
             }
         }
     }
     else
     {
         // remaining tasks except the last one
-        uint32_t data_received = 0;
-        xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
-                        0, // No need to clear any bits in the notification while exiting
-                        &data_received, // variable to receive the notification data
-                        portMAX_DELAY); // Wait for the notification indefinitely
-        printf("[RTOS] Task[%d] received data\n", p_task_data->index);
+        //uint32_t data_received = 0;
+        TickType_t start_tick_count = p_task_data->release_time;
+        printf("[Task-%u] Released : %d\n", p_task_data->id, start_tick_count);
+        TickType_t prev_tick_count = 0;
+        TickType_t prev_run_tick_count = 0;
+        TickType_t preempted_ticks = 0;
+        TickType_t blocked_ticks = 0;
+        //xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
+        //                0, // No need to clear any bits in the notification while exiting
+        //                &data_received, // variable to receive the notification data
+        //                portMAX_DELAY); // Wait for the notification indefinitely
+        //printf("[RTOS] Task[%d] received data\n", p_task_data->index);
         // perform some task specific computations
         // send the data to the next task
-        bool isDataSent = false;
+        prev_run_tick_count = start_tick_count;
         while(1)
         {
             TickType_t tick_count = xTaskGetTickCount();
-            if (!isDataSent && data_received != 0)
+            if (tick_count >= pdMS_TO_TICKS(1500))
             {
-                printf("[RTOS] Task[%d] sending data to Task[%d]\n", p_task_data->index, p_task_data->index+1);
-                xTaskNotify(xTask[p_task_data->index+1],
-                            data_received,
-                            eSetValueWithOverwrite);
-                isDataSent = true;
-            }
-            if (tick_count >= current_tick_count + p_task_data->execution_time)
-            {
-                printf("[RTOS] Task-%u : Response Time : %d\n", p_task_data->id, tick_count);
-                if (tick_count > p_task_data->period)
-                {
-                    printf("[RTOS] Task %u : DEADLINE VIOLATION !!!\n", p_task_data->id);
-                }
+                // stop the execution once the hyper-period is reached
+                printf("[Task-%u] Reached Hyper-period !!!\n", p_task_data->id);
                 break;
+            }
+            if (tick_count - prev_run_tick_count > 1)
+            {
+                // check if the difference is more than 1 tick count
+                // if so, then there has been some miss in the continuity of the task
+                // which means this task was pre-empted for a while by another higher priority
+                // task. Now adjust the task counters for current task execution.
+                preempted_ticks += (tick_count - prev_run_tick_count);
+                printf("[Task-%u] Pre-empted for %d ticks [%d - %d]\n", p_task_data->id, preempted_ticks, prev_run_tick_count, tick_count);
+                prev_run_tick_count = tick_count;
+            }
+            // printing the task execution progress
+            if (tick_count % 50 == 0 && prev_tick_count != tick_count)
+            {
+                prev_tick_count = tick_count;
+                printf("[Task-%u] Running with #ticks = %d || %d\n", p_task_data->id, tick_count, start_tick_count + p_task_data->execution_time + preempted_ticks);
+            }
+
+            if (tick_count >= start_tick_count + p_task_data->execution_time + preempted_ticks)
+            {
+                if (tick_count >= start_tick_count + p_task_data->deadline)
+                {
+                    printf("[Task-%u] DEADLINE VIOLATION !!!\n", p_task_data->id);
+                    break;
+                }
+                if (tick_count == start_tick_count + p_task_data->execution_time + preempted_ticks)
+                {
+                    // execution completed. block until next release time
+                    printf("[Task-%u] Execution Completed. Response Time : %d\n", p_task_data->id, tick_count-start_tick_count);
+                    // Completed execution of the current job.
+                    // Generate and send the Freshness data to next task
+                    printf("Task[%d] --> sending data to --> Task[%d]\n", p_task_data->index, p_task_data->index+1);
+                    //FreshData fresh_data = generate_freshness_data();
+                    //xTaskNotify(xTask[p_task_data->index+1],
+                    //            fresh_data.fdata,
+                    //            eSetValueWithOverwrite);
+                    blocked_ticks = start_tick_count + p_task_data->period - tick_count;
+                    vTaskDelay(blocked_ticks);
+                    start_tick_count += p_task_data->period;
+                    //start_tick_count = xTaskGetTickCount();
+                    // Next job released for the task
+                    printf("[Task-%u] Released : %d\n", p_task_data->id, start_tick_count);
+                    preempted_ticks = 0;
+                }
+            }
+
+            if (blocked_ticks > 0)
+            {
+                prev_run_tick_count = start_tick_count;
+                blocked_ticks = 0;
+            }
+            else
+            {
+                prev_run_tick_count = tick_count;
             }
         }
     }
@@ -170,6 +277,7 @@ void fill_task_data(int task_index,
         p_token = strtok(NULL, ",");
         p_task_data[task_index].deadline = pdMS_TO_TICKS(atoi(p_token));
     }
+    p_task_data[task_index].release_time = 0;
 }
 
 void fill_priority_data(int task_count,
