@@ -77,10 +77,10 @@
 > # Task set for running FNR-PA Algorithm for FPDS scheduling
 > # task_id, task_period, task_execution_time, task_relative_deadline
 > #
-> # Task Set-1 (Given in Paper):
-> 1,250,100,175
-> 2,400,100,300
-> 3,350,100,325
+> # Task Set-3 (testing pre-emption):
+> 1,300,100,200
+> 2,500,150,300
+> 3,500,100,500
 >```
 
 **_Sample Execution Run:_**
