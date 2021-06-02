@@ -20,14 +20,23 @@
 
 ## Solution Approach
 
- 1. Idea is to run FPDS algorithm for a given set of chained taskset and compute the optimal priority ordering for the taskset and the final non pre-emptive region (FNR) lengths for each task.
- 2. Pass the computed priority ordering and the FNR lengths of the taskset to FreeRTOS simulator.
- 3. Create tasks in FreeRTOS simulator and store the task related data in them (like period, execution time, deadline), along with priorities and FNR lengths.
- 4. FreeRTOS Scheduler will schedule the taskset (based on the priorities) provided.
- 5. Then using task notifications feature of FreeRTOS, we can pass some data and its creation time embedded within a 32-bit unsigned integer value and pass through all the tasks till the last task.
- 6. Once this data object (notification) reaches the last task, we will compute the current time and see the difference between created time (stored in the data object) and current time which is nothing but the freshness quotient.
- 7. From there on we will perform some tests and try to make use of the FNR lengths.
+ 1. Idea is to run FPDS algorithm for a given set of chained taskset and compute the optimal priority ordering for the taskset and the final non pre-emptive region (FNR) lengths for each task.  
+ 2. Pass the computed priority ordering and the FNR lengths of the taskset to FreeRTOS simulator.  
+ 3. Create tasks in FreeRTOS simulator and store the task related data in them (like period, execution time, deadline), along with priorities and FNR lengths.  
+ 4. FreeRTOS Scheduler will schedule the taskset (based on the priorities) provided.  
+ 5. Then using task notifications feature of FreeRTOS, we can pass some data and its creation time embedded within a 32-bit unsigned integer value and pass through all the tasks till the last task.  
+ 6. Once this data object (notification) reaches the last task, we will compute the current time and see the difference between created time (stored in the data object) and current time which is nothing but the freshness quotient.  
+ 7. From there on we will perform some tests and try to make use of the FNR lengths.  
  8. The FreeRTOS implementation doesn't support pre-emptive scheduling by default, hence I have implemented the support of it in the current source.
+ 9. Enabling pre-emptive scheduling in FreeRTOS by setting the option configUSE_PREEMPTION in FreeRTOSConfig.h file will enable the scheduler to schedule the tasks in pre-emptive manner, however while simulation the individual tasks would need to manually set the task states (based on the priorities) in such a manner that he scheduler is able to preemt the task which are currently in blocked/not-running state and schedule other tasks which are in ready state.  
+ 10. THREE (3) types of tasks we will encounter in any task set.  
+     Type-1: Task with highest priority.  
+     Type-2: Task with lowest priority.  
+     Type-3: Tasks with priorities in between above two.  
+ 11. The Type-1 task with the highest priority will always be run on the scheduler with the immediate tick after it is released. Thus for this task, we only need to make sure that the - after the execution time of the task is over, it should sent to blocked state using the function *vTaskDelay(period - execution_time)*. This will move the task into blocked state and enable the scheduler to schedule other lower priority tasks. Note: Type-2 task should send a notification before it goes into blocked state to the next task priority-queue. The content of the notification will be the some data component and the timer-ticks of the current tick count where it is going into blocked state.  
+ 12. For the Type-3 tasks, one of the task in this section, will be scheduled by the scheduler and will receive the notification from the higher priority task with the timer data. This data will help compute the initial pre-empted timer ticks for that task (from its release time till it was acually scheduled on the scheduler). There might be cases where this task(s) need to be further pre-empted in future (if the higher priority task comes out from its blocked state). In that case there are checks in place which will compute the pre-empted timer ticks and add them to the execution time for the current task. Finally go into blocked state by executing *vTaskDelay(period - execution_time - preempted_ticks)*. Before, going into blocked state the task will forward the notification received to the next task in the priority-queue.  
+ 13. For the Type-2 task(with the lowest priority), everything is similar to type-3 task. Only difference is after the execution it will print the freshness data received from the higher protity task, received via notification.  
+ 14. The frame-work is in testing phase and might need some modifications to the code/framework based on test results. Stay tumed for updates.  
 
 ## Source Tree
 >- Given below is the source tree for the current assignment.
