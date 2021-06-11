@@ -110,11 +110,7 @@ void run_task(void* data)
         TickType_t prev_run_tick_count = 0;
         TickType_t preempted_ticks = 0;
         TickType_t blocked_ticks = 0;
-        //xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
-        //                0, // No need to clear any bits in the notification while exiting
-        //                &data_received, // variable to receive the notification data
-        //                portMAX_DELAY); // Wait for the notification indefinitely
-        //printf("[RTOS] Task[%d] received data. Sending completed.\n", p_task_data->index);
+
         prev_run_tick_count = start_tick_count;
         while(1)
         {
@@ -131,6 +127,11 @@ void run_task(void* data)
                 // if so, then there has been some miss in the continuity of the task
                 // which means this task was pre-empted for a while by another higher priority
                 // task. Now adjust the task counters for current task execution.
+                //xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
+                //                0, // No need to clear any bits in the notification while exiting
+                //                &data_received, // variable to receive the notification data
+                //                portMAX_DELAY); // Wait for the notification indefinitely
+                //printf("[RTOS] Task[%d] received data. Sending completed.\n", p_task_data->index);
                 preempted_ticks += (tick_count - prev_run_tick_count);
                 printf("[Task-%u] Pre-empted for %d ticks [%d - %d]\n", p_task_data->id, preempted_ticks, prev_run_tick_count, tick_count);
                 prev_run_tick_count = tick_count;
@@ -184,11 +185,7 @@ void run_task(void* data)
         TickType_t prev_run_tick_count = 0;
         TickType_t preempted_ticks = 0;
         TickType_t blocked_ticks = 0;
-        //xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
-        //                0, // No need to clear any bits in the notification while exiting
-        //                &data_received, // variable to receive the notification data
-        //                portMAX_DELAY); // Wait for the notification indefinitely
-        //printf("[RTOS] Task[%d] received data\n", p_task_data->index);
+
         // perform some task specific computations
         // send the data to the next task
         prev_run_tick_count = start_tick_count;
@@ -207,6 +204,11 @@ void run_task(void* data)
                 // if so, then there has been some miss in the continuity of the task
                 // which means this task was pre-empted for a while by another higher priority
                 // task. Now adjust the task counters for current task execution.
+                //xTaskNotifyWait(0, // No need to clear any bits in the notification while entering
+                //                0, // No need to clear any bits in the notification while exiting
+                //                &data_received, // variable to receive the notification data
+                //                portMAX_DELAY); // Wait for the notification indefinitely
+                //printf("[RTOS] Task[%d] received data\n", p_task_data->index);
                 preempted_ticks += (tick_count - prev_run_tick_count);
                 printf("[Task-%u] Pre-empted for %d ticks [%d - %d]\n", p_task_data->id, preempted_ticks, prev_run_tick_count, tick_count);
                 prev_run_tick_count = tick_count;
@@ -228,7 +230,7 @@ void run_task(void* data)
                 if (tick_count == start_tick_count + p_task_data->execution_time + preempted_ticks)
                 {
                     // execution completed. block until next release time
-                    printf("[Task-%u] Execution Completed. Response Time : %d\n", p_task_data->id, tick_count-start_tick_count);
+                    printf("[Task-%u] Execution Completed. Response Time : %d\n", p_task_data->id, tick_count - start_tick_count);
                     // Completed execution of the current job.
                     // Generate and send the Freshness data to next task
                     printf("Task[%d] --> sending data to --> Task[%d]\n", p_task_data->index, p_task_data->index+1);
